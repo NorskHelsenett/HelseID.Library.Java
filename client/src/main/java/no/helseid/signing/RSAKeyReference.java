@@ -10,13 +10,13 @@ import java.util.UUID;
  */
 public final class RSAKeyReference implements KeyReference {
   private static final String ALGORITHM = "RSA";
-  private static final int MINIMUM_KEY_SIZE = 2048;
+  private static final int DEFAULT_KEY_SIZE = 4096;
   private final KeyPair keyPair;
   private final Algorithm algorithm;
   private final String keyId;
 
   /**
-   * Creates a static reference to a RSA key pair with a specified algorithm
+   * Creates a static reference to an RSA key pair with a specified algorithm
    *
    * @param algorithm the RSA algorithm
    * @param keyPair   the RSA key pair
@@ -42,7 +42,7 @@ public final class RSAKeyReference implements KeyReference {
   public static RSAKeyReference generate(Algorithm algorithm) throws HelseIdException {
     try {
       KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(ALGORITHM);
-      keyPairGenerator.initialize(MINIMUM_KEY_SIZE);
+      keyPairGenerator.initialize(DEFAULT_KEY_SIZE);
       return new RSAKeyReference(algorithm, keyPairGenerator.generateKeyPair(), UUID.randomUUID().toString());
 
     } catch (NoSuchAlgorithmException e) {
