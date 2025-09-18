@@ -22,5 +22,11 @@
             <artifactId>client</artifactId>
             <version>0.1.2</version>
         </dependency>
+
+        <dependency>
+            <groupId>no.helseid</groupId>
+            <artifactId>selfservice</artifactId>
+            <version>0.1.0</version>
+        </dependency>
     </dependencies>
 </project>

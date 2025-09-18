@@ -149,6 +149,7 @@
                 <module>common</module>
                 <module>client</module>
                 <module>examples</module>
+                <module>selfservice</module>
             </modules>
         </profile>
         <profile>
@@ -158,6 +159,7 @@
             <modules>
                 <module>common</module>
                 <module>client</module>
+                <module>selfservice</module>
             </modules>
             <build>
                 <plugins>
