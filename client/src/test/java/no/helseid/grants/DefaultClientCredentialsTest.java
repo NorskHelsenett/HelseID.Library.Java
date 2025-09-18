@@ -86,7 +86,7 @@ class DefaultClientCredentialsTest {
         .setCustomTokenCache(new InMemoryExpiringCache<>())
         .build();
     AssertionDetails assertionDetails = new AssertionDetails.Builder(Tenancy.SINGLE_TENANT).withChildOrganizationNumber("994598759").build();
-    TokenResponse tokenResponse = clientCredentials.getAccessToken(assertionDetails);
+    TokenResponse tokenResponse = clientCredentials.getAccessToken(client.scope(), assertionDetails);
 
     wms.verify(1, getRequestedFor(urlEqualTo("/.well-known/openid-configuration")));
 
@@ -116,8 +116,8 @@ class DefaultClientCredentialsTest {
     ClientCredentials clientCredentials = new ClientCredentials.Builder(URI.create(wms.baseUrl())).withClient(client).build();
 
     AssertionDetails assertionDetails = new AssertionDetails.Builder(Tenancy.SINGLE_TENANT).withChildOrganizationNumber("994598759").build();
-    TokenResponse tokenResponseFirst = clientCredentials.getAccessToken(assertionDetails);
-    TokenResponse tokenResponseSecond = clientCredentials.getAccessToken(assertionDetails);
+    TokenResponse tokenResponseFirst = clientCredentials.getAccessToken(client.scope(), assertionDetails);
+    TokenResponse tokenResponseSecond = clientCredentials.getAccessToken(client.scope(), assertionDetails);
 
     wms.verify(1, getRequestedFor(urlEqualTo("/.well-known/openid-configuration")));
 

@@ -17,6 +17,7 @@ import no.helseid.metadata.MetadataProvider;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Default implementation of Client Credentials
@@ -46,14 +47,37 @@ public final class DefaultClientCredentials implements ClientCredentials {
   }
 
   @Override
+  public DPoPProofCreator getCurrentDPoPProofCreator() {
+    return dPoPProofCreator;
+  }
+
+  @Override
   public TokenResponse getAccessToken() throws HelseIdException {
-    return getAccessToken(null);
+    return getAccessToken(null, null);
   }
 
   @Override
   public TokenResponse getAccessToken(AssertionDetails assertionDetails) throws HelseIdException {
+    return getAccessToken(null, assertionDetails);
+  }
+
+  @Override
+  public TokenResponse getAccessToken(List<String> scope) throws HelseIdException {
+    return getAccessToken(scope, null);
+  }
+
+  @Override
+  public TokenResponse getAccessToken(List<String> scope, AssertionDetails assertionDetails) throws HelseIdException {
     var metadata = metadataProvider.getMetadata();
-    var cacheKey = assertionDetails == null ? "assertion_detail_cache_key" : assertionDetails.id();
+
+    var cacheKey = "client_credentials_cache_key";
+    if (scope != null) {
+      cacheKey += String.join("_", scope);
+    }
+    if (assertionDetails != null) {
+      cacheKey += assertionDetails.id();
+    }
+
     TokenResponse helseIdTokenResponse = tokenCache.get(cacheKey);
 
     if (helseIdTokenResponse != null) {
@@ -84,5 +108,4 @@ public final class DefaultClientCredentials implements ClientCredentials {
 
     return tokenResponse;
   }
-
 }
