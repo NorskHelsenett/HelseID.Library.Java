@@ -1,4 +1,4 @@
-name: Maven Build
+name: Maven Release
 
 on:
   release:
@@ -7,9 +7,6 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./java
     steps:
       - name: Set up Apache Maven Central
         uses: actions/setup-java@v5
@@ -17,6 +14,7 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
           server-id: central
+          cache: maven
           server-username: MAVEN_USERNAME
           server-password: MAVEN_CENTRAL_TOKEN
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
