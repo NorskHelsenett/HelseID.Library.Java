@@ -1,21 +1,10 @@
 name: Maven Build
 
-on:
-  push:
-    branches: [ "main" ]
-    paths:
-      - 'java/**'
-  pull_request:
-    branches: [ "main" ]
-    paths:
-      - 'java/**'
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./java
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 21
