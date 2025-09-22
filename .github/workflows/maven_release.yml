@@ -8,6 +8,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Set up Apache Maven Central
         uses: actions/setup-java@v5
         with:
