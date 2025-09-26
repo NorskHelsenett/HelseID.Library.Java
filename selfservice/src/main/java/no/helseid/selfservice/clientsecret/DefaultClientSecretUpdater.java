@@ -17,16 +17,24 @@ import no.helseid.signing.RSAKeyReference;
 import no.helseid.signing.Util;
 
 import java.net.URI;
-import java.time.ZonedDateTime;
 import java.util.List;
 
 
+/**
+ * Default implementation of a ClientSecretUpdater
+ */
 public class DefaultClientSecretUpdater implements ClientSecretUpdater {
   private final URI selfServiceClientSecretEndpoint;
   private final ClientCredentials clientCredentials;
   private final DPoPProofCreator dPoPProofCreator;
   private final List<String> clientSecretScope;
 
+  /**
+   * Creates the default implementation of the ClientSecretUpdater
+   * @param selfServiceClientSecretEndpoint the full endpoint for updating client secrets
+   * @param clientCredentials a client credentials instance for the client
+   * @param clientSecretScope the scope(s) required for the selfServiceClientSecretEndpoint
+   */
   public DefaultClientSecretUpdater(
       final URI selfServiceClientSecretEndpoint,
       final ClientCredentials clientCredentials,
