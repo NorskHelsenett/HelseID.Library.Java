@@ -13,12 +13,16 @@ import no.helseid.grants.ClientCredentials;
 import no.helseid.signing.JWKKeyReference;
 
 import java.net.URI;
+import java.util.Collections;
+import java.util.List;
 
 import static no.helseid.examples.constants.ExampleConstants.*;
 
 public class ClientCredentialsExample {
+  private static final List<String> SCOPE = Collections.singletonList("nhn:kjernejorunal/api");
+
   public static void main(String[] args) throws HelseIdException {
-    Client client = new Client(CLIENT_ID, JWKKeyReference.parse(JWK), SELF_SERVICE_CLIENT_SCOPE);
+    Client client = new Client(CLIENT_ID, JWKKeyReference.parse(JWK), SCOPE);
 
     DPoPProofCreator dPoPProofCreator = new DefaultDPoPProofCreator(client.keyReference());
 
@@ -26,7 +30,6 @@ public class ClientCredentialsExample {
         .withClient(client)
         .setCustomDPoPProofCreator(dPoPProofCreator)
         .build();
-
 
     AssertionDetails assertionDetails = new AssertionDetails.Builder(TENANCY)
         .withParentOrganizationNumber("994598759")

@@ -8,13 +8,19 @@ import no.helseid.signing.Algorithm;
 import no.helseid.signing.JWKKeyReference;
 import no.helseid.signing.RSAKeyReference;
 
+import java.net.URI;
 import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.List;
 
 import static no.helseid.examples.constants.ExampleConstants.*;
 
 public class SelfServiceClientSecretRotationExample {
+  private static final URI SELF_SERVICE_ENDPOINT = URI.create("https://api.selvbetjening.test.nhn.no/v1/client-secret");
+  private static final List<String> SCOPE = Collections.singletonList("nhn:selvbetjening/client");
+
   public static void main(String[] args) throws HelseIdException {
-    Client initialClient = new Client(CLIENT_ID, JWKKeyReference.parse(JWK), SELF_SERVICE_CLIENT_SCOPE);
+    Client initialClient = new Client(CLIENT_ID, JWKKeyReference.parse(JWK), SCOPE);
 
     ClientCredentials initialClientCredentials = new ClientCredentials.Builder(AUTHORITY)
         .withClient(initialClient)
@@ -23,7 +29,7 @@ public class SelfServiceClientSecretRotationExample {
     ClientSecretUpdater clientSecretUpdater = new DefaultClientSecretUpdater(
         SELF_SERVICE_ENDPOINT,
         initialClientCredentials,
-        SELF_SERVICE_CLIENT_SCOPE
+        SCOPE
     );
 
     // ALTERNATIVE 1:
