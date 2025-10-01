@@ -22,8 +22,11 @@ public final class AccessTokenResponse extends TokenResponse {
       String accessToken,
       String tokenType,
       long expiresInSeconds,
-      List<String> scope
+      List<String> scope,
+      String rawResponseBody,
+      int statusCode
   ) {
+    super(rawResponseBody, statusCode);
     this.accessToken = accessToken;
     this.tokenType = tokenType;
     this.expiresInSeconds = expiresInSeconds;

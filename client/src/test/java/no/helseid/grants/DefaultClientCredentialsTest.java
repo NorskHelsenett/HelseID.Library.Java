@@ -8,9 +8,8 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import no.helseid.cache.InMemoryExpiringCache;
-import no.helseid.clientassertion.AssertionDetails;
+import no.helseid.endpoints.token.TokenRequestDetails;
 import no.helseid.configuration.Client;
-import no.helseid.configuration.Tenancy;
 import no.helseid.dpop.DefaultDPoPProofCreator;
 import no.helseid.endpoints.token.AccessTokenResponse;
 import no.helseid.endpoints.token.ErrorResponse;
@@ -85,8 +84,10 @@ class DefaultClientCredentialsTest {
         .setCustomDPoPProofCreator(new DefaultDPoPProofCreator(KEY_REFERENCE))
         .setCustomTokenCache(new InMemoryExpiringCache<>())
         .build();
-    AssertionDetails assertionDetails = new AssertionDetails.Builder(Tenancy.SINGLE_TENANT).withChildOrganizationNumber("994598759").build();
-    TokenResponse tokenResponse = clientCredentials.getAccessToken(client.scope(), assertionDetails);
+    TokenRequestDetails tokenRequestDetails = new TokenRequestDetails.Builder()
+        .withChildOrganizationNumber("994598759")
+        .build();
+    TokenResponse tokenResponse = clientCredentials.getAccessToken(tokenRequestDetails);
 
     wms.verify(1, getRequestedFor(urlEqualTo("/.well-known/openid-configuration")));
 
@@ -96,7 +97,7 @@ class DefaultClientCredentialsTest {
 
       assertEquals(MOCK_ACCESS_TOKEN, accessTokenResponse.accessToken());
     } else if (tokenResponse instanceof ErrorResponse errorResponse) {
-      fail(errorResponse.rawResponse());
+      fail(errorResponse.rawResponseBody());
     }
   }
 
@@ -115,9 +116,11 @@ class DefaultClientCredentialsTest {
     Client client = new Client("client-id", KEY_REFERENCE, SCOPE);
     ClientCredentials clientCredentials = new ClientCredentials.Builder(URI.create(wms.baseUrl())).withClient(client).build();
 
-    AssertionDetails assertionDetails = new AssertionDetails.Builder(Tenancy.SINGLE_TENANT).withChildOrganizationNumber("994598759").build();
-    TokenResponse tokenResponseFirst = clientCredentials.getAccessToken(client.scope(), assertionDetails);
-    TokenResponse tokenResponseSecond = clientCredentials.getAccessToken(client.scope(), assertionDetails);
+    TokenRequestDetails tokenRequestDetails = new TokenRequestDetails.Builder()
+        .withChildOrganizationNumber("994598759")
+        .build();
+    TokenResponse tokenResponseFirst = clientCredentials.getAccessToken(tokenRequestDetails);
+    TokenResponse tokenResponseSecond = clientCredentials.getAccessToken(tokenRequestDetails);
 
     wms.verify(1, getRequestedFor(urlEqualTo("/.well-known/openid-configuration")));
 
@@ -130,10 +133,10 @@ class DefaultClientCredentialsTest {
       if (tokenResponseSecond instanceof AccessTokenResponse accessTokenResponseSecond) {
         assertEquals(MOCK_ACCESS_TOKEN, accessTokenResponseSecond.accessToken());
       } else if (tokenResponseSecond instanceof ErrorResponse errorResponse) {
-        fail(errorResponse.rawResponse());
+        fail(errorResponse.rawResponseBody());
       }
     } else if (tokenResponseFirst instanceof ErrorResponse errorResponse) {
-      fail(errorResponse.rawResponse());
+      fail(errorResponse.rawResponseBody());
     }
   }
 

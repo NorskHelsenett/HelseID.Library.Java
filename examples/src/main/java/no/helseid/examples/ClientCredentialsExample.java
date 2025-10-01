@@ -1,6 +1,6 @@
 package no.helseid.examples;
 
-import no.helseid.clientassertion.AssertionDetails;
+import no.helseid.endpoints.token.TokenRequestDetails;
 import no.helseid.configuration.Client;
 import no.helseid.dpop.DPoPProofCreator;
 import no.helseid.dpop.DefaultDPoPProofCreator;
@@ -31,11 +31,12 @@ public class ClientCredentialsExample {
         .setCustomDPoPProofCreator(dPoPProofCreator)
         .build();
 
-    AssertionDetails assertionDetails = new AssertionDetails.Builder(TENANCY)
+    TokenRequestDetails tokenRequestDetails = new TokenRequestDetails.Builder()
+        .withTenancy(TENANCY)
         .withParentOrganizationNumber("994598759")
         .withChildOrganizationNumber("994598759")
         .build();
-    TokenResponse tokenResponse = clientCredentials.getAccessToken(assertionDetails);
+    TokenResponse tokenResponse = clientCredentials.getAccessToken(tokenRequestDetails);
 
     if (tokenResponse instanceof ErrorResponse errorResponse) {
       handleErrorResponse(errorResponse);
@@ -53,7 +54,7 @@ public class ClientCredentialsExample {
   }
 
   private static void handleErrorResponse(ErrorResponse errorResponse) {
-    System.out.printf("Something went wrong: %s\n%s\n\n%s", errorResponse.error(), errorResponse.errorDescription(), errorResponse.rawResponse());
+    System.out.printf("Something went wrong: %s\n%s\n\n%s", errorResponse.error(), errorResponse.errorDescription(), errorResponse.rawResponseBody());
     System.exit(1);
   }
 }

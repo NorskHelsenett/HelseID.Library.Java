@@ -4,9 +4,7 @@ import no.helseid.configuration.Client;
 import no.helseid.exceptions.HelseIdException;
 import no.helseid.grants.ClientCredentials;
 import no.helseid.selfservice.clientsecret.*;
-import no.helseid.signing.Algorithm;
 import no.helseid.signing.JWKKeyReference;
-import no.helseid.signing.RSAKeyReference;
 
 import java.net.URI;
 import java.time.ZonedDateTime;
@@ -42,16 +40,16 @@ public class SelfServiceClientSecretRotationExample {
 
     // ALTERNATIVE 2:
     // For more detailed control use the flow below
-    UpdatedClientSecretResult updatedClientSecretResult = clientSecretUpdater.updateClientSecret(RSAKeyReference.generate(Algorithm.PS256));
+    UpdatedClientSecretResult updatedClientSecretResult = clientSecretUpdater.updateClientSecret();
 
     if (updatedClientSecretResult instanceof UpdatedClientSecretSuccess updatedClientSecretSuccess) {
       String updatedJwk = updatedClientSecretSuccess.jsonWebKey();
       ZonedDateTime expiration = updatedClientSecretSuccess.expiration();
       // Securely store the updated jwk and renew within the expiration
     } else if (updatedClientSecretResult instanceof UpdatedClientSecretError updatedClientSecretError) {
-      if (updatedClientSecretError.tokenErrorResponse() != null) {
+      if (updatedClientSecretError.tokenResponse() != null) {
         // Handle failed request to the token endpoint
-      } else if (updatedClientSecretError.clientSecretErrorResponse() != null) {
+      } else if (updatedClientSecretError.clientSecretResponse() != null) {
         // Handle failed request to the client secret endpoint
       }
     }

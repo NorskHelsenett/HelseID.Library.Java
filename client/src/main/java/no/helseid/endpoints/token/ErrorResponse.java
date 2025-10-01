@@ -6,8 +6,6 @@ package no.helseid.endpoints.token;
 public final class ErrorResponse extends TokenResponse {
   private final String error;
   private final String errorDescription;
-  private final int statusCode;
-  private final String rawResponse;
 
   /**
    * Create a representation of an error response from the token-endpoint in HelseID
@@ -17,10 +15,9 @@ public final class ErrorResponse extends TokenResponse {
    * @param rawResponse the raw body of the HTTO response
    */
   public ErrorResponse(String error, String errorDescription, int statusCode, String rawResponse) {
+    super(rawResponse, statusCode);
     this.error = error;
     this.errorDescription = errorDescription;
-    this.statusCode = statusCode;
-    this.rawResponse = rawResponse;
   }
 
   /**
@@ -39,20 +36,5 @@ public final class ErrorResponse extends TokenResponse {
     return errorDescription;
   }
 
-  /**
-   * Access the HTTP status-code returned
-   * @return the HTTP status-code returned
-   */
-  public int statusCode() {
-    return statusCode;
-  }
-
-  /**
-   * Access the raw body of the HTTO response
-   * @return the raw body of the HTTO response
-   */
-  public String rawResponse() {
-    return rawResponse;
-  }
 }
 

@@ -35,7 +35,8 @@ public interface ClientSecretEndpoint {
       JWK jwk
   ) throws HelseIdException {
     HttpResponse<String> httpResponse;
-    try (HttpClient httpclient = HttpClient.newHttpClient()) {
+    try {
+      HttpClient httpclient = HttpClient.newHttpClient();
       HttpRequest httpRequest = HttpRequest.newBuilder(endpoint)
           .POST(HttpRequest.BodyPublishers.ofString(jwk.toPublicJWK().toJSONString()))
           .header("Authorization", "DPoP " + accessToken)

@@ -15,10 +15,8 @@ import no.helseid.selfservice.clientsecret.DefaultClientSecretUpdater;
 import no.helseid.selfservice.clientsecret.UpdatedClientSecretError;
 import no.helseid.selfservice.clientsecret.UpdatedClientSecretResult;
 import no.helseid.selfservice.clientsecret.UpdatedClientSecretSuccess;
-import no.helseid.selfservice.endpoints.clientsecret.ClientSecretEndpoint;
 import no.helseid.selfservice.endpoints.clientsecret.ClientSecretErrorResponse;
-import no.helseid.signing.Algorithm;
-import no.helseid.signing.RSAKeyReference;
+import no.helseid.selfservice.endpoints.clientsecret.ClientSecretResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import wiremock.net.minidev.json.JSONObject;
@@ -34,8 +32,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 class DefaultClientSecretUpdaterTest {
-  private static String CLIENT_SECRET_PATH = "/v1/client-secret";
-  private static List<String> CLIENT_SECRET_SCOPE = Collections.singletonList("nhn:selvbetjening/client");
+  private static final String CLIENT_SECRET_PATH = "/v1/client-secret";
+  private static final List<String> CLIENT_SECRET_SCOPE = Collections.singletonList("nhn:selvbetjening/client");
   private WireMockServer wms;
 
   private static ClientCredentials mockClientCredentials(TokenResponse tokenResponse) {
@@ -55,7 +53,9 @@ class DefaultClientSecretUpdaterTest {
         "my.access.token",
         "DPoP",
         10,
-        CLIENT_SECRET_SCOPE));
+        CLIENT_SECRET_SCOPE,
+        "{}",
+        200));
     DefaultClientSecretUpdater updater = new DefaultClientSecretUpdater(
         URI.create(wms.baseUrl() + CLIENT_SECRET_PATH),
         clientCredentials,
@@ -68,7 +68,7 @@ class DefaultClientSecretUpdaterTest {
                 .toJSONString()
         )));
 
-    UpdatedClientSecretResult updatedClientSecretResult = updater.updateClientSecret(RSAKeyReference.generate(Algorithm.PS256));
+    UpdatedClientSecretResult updatedClientSecretResult = updater.updateClientSecret();
 
     assertInstanceOf(UpdatedClientSecretSuccess.class, updatedClientSecretResult);
     UpdatedClientSecretSuccess updatedClientSecretSuccess = (UpdatedClientSecretSuccess) updatedClientSecretResult;
@@ -81,7 +81,10 @@ class DefaultClientSecretUpdaterTest {
         "my.access.token",
         "DPoP",
         10,
-        Collections.singletonList("nhn:helseid")));
+        Collections.singletonList("nhn:helseid"),
+        "",
+        200
+    ));
     DefaultClientSecretUpdater updater = new DefaultClientSecretUpdater(
         URI.create(wms.baseUrl() + CLIENT_SECRET_PATH),
         clientCredentials,
@@ -98,12 +101,14 @@ class DefaultClientSecretUpdaterTest {
                 .toJSONString()
         )));
 
-    UpdatedClientSecretResult updatedClientSecretResult = updater.updateClientSecret(RSAKeyReference.generate(Algorithm.PS256));
+    UpdatedClientSecretResult updatedClientSecretResult = updater.updateClientSecret();
 
     assertInstanceOf(UpdatedClientSecretError.class, updatedClientSecretResult);
     UpdatedClientSecretError updatedClientSecretError = (UpdatedClientSecretError) updatedClientSecretResult;
-    ClientSecretErrorResponse clientSecretErrorResponse = updatedClientSecretError.clientSecretErrorResponse();
+    ClientSecretResponse clientSecretResponse = updatedClientSecretError.clientSecretResponse();
 
+    assertInstanceOf(ClientSecretErrorResponse.class, clientSecretResponse);
+    ClientSecretErrorResponse clientSecretErrorResponse = (ClientSecretErrorResponse) clientSecretResponse;
     assertEquals("type", clientSecretErrorResponse.type());
     assertEquals("title", clientSecretErrorResponse.title());
     assertEquals(400, clientSecretErrorResponse.status());
@@ -121,10 +126,10 @@ class DefaultClientSecretUpdaterTest {
         CLIENT_SECRET_SCOPE
     );
 
-    UpdatedClientSecretResult updatedClientSecretResult = updater.updateClientSecret(RSAKeyReference.generate(Algorithm.PS256));
+    UpdatedClientSecretResult updatedClientSecretResult = updater.updateClientSecret();
 
     assertInstanceOf(UpdatedClientSecretError.class, updatedClientSecretResult);
     UpdatedClientSecretError updatedClientSecretError = (UpdatedClientSecretError) updatedClientSecretResult;
-    assertEquals(errorResponse, updatedClientSecretError.tokenErrorResponse());
+    assertEquals(errorResponse, updatedClientSecretError.tokenResponse());
   }
 }

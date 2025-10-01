@@ -8,6 +8,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.id.JWTID;
 import no.helseid.configuration.Client;
+import no.helseid.endpoints.token.TokenRequestDetails;
 import no.helseid.exceptions.HelseIdException;
 
 import java.util.Date;
@@ -53,7 +54,7 @@ public interface ClientAssertion {
    * @param assertionDetails Containing the requested assertion details
    * @return A signed client assertion
    * @throws HelseIdException Is thrown if signing fails
-   * @see AssertionDetails
+   * @see TokenRequestDetails
    */
   static SignedJWT createClientAssertionSignedJWT(String audience, Client client, Object assertionDetails) throws HelseIdException {
     var keyReference = client.keyReference();
@@ -84,7 +85,7 @@ public interface ClientAssertion {
    * @param clientId         the relevant client id
    * @param assertionDetails Containing the requested assertion details
    * @return Claim set representing the payload of a client assertion
-   * @see AssertionDetails
+   * @see TokenRequestDetails
    */
   private static JWTClaimsSet createPayload(String audience, String clientId, Object assertionDetails) {
     long currentTimeEpocMilliseconds = System.currentTimeMillis();

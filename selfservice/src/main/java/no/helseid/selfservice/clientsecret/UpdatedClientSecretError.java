@@ -1,41 +1,41 @@
 package no.helseid.selfservice.clientsecret;
 
-import no.helseid.endpoints.token.ErrorResponse;
-import no.helseid.selfservice.endpoints.clientsecret.ClientSecretErrorResponse;
+import no.helseid.endpoints.token.TokenResponse;
+import no.helseid.selfservice.endpoints.clientsecret.ClientSecretResponse;
 
 /**
  * The representation of a failed update of client secret
  */
 public final class UpdatedClientSecretError extends UpdatedClientSecretResult {
-  private final ErrorResponse tokenErrorResponse;
-  private final ClientSecretErrorResponse clientSecretErrorResponse;
+  private final TokenResponse tokenResponse;
+  private final ClientSecretResponse clientSecretResponse;
 
   /**
    * Creates a UpdatedClientSecretError
-   * @param tokenErrorResponse a token error response if it occurred
-   * @param clientSecretErrorResponse a client secret error response if it occurred
+   * @param tokenResponse a token error response if it occurred
+   * @param clientSecretResponse a client secret error response if it occurred
    */
   public UpdatedClientSecretError(
-      final ErrorResponse tokenErrorResponse,
-      final ClientSecretErrorResponse clientSecretErrorResponse
+      final TokenResponse tokenResponse,
+      final ClientSecretResponse clientSecretResponse
   ) {
-    this.tokenErrorResponse = tokenErrorResponse;
-    this.clientSecretErrorResponse = clientSecretErrorResponse;
+    this.tokenResponse = tokenResponse;
+    this.clientSecretResponse = clientSecretResponse;
   }
 
   /**
-   * Access the token error response
-   * @return the token error response
+   * Access the token response
+   * @return the token response
    */
-  public ErrorResponse tokenErrorResponse() {
-    return tokenErrorResponse;
+  public TokenResponse tokenResponse() {
+    return tokenResponse;
   }
 
   /**
-   * Access the client secret error response
-   * @return the client secret error response
+   * Access the client secret response
+   * @return the client secret response
    */
-  public ClientSecretErrorResponse clientSecretErrorResponse() {
-    return clientSecretErrorResponse;
+  public ClientSecretResponse clientSecretResponse() {
+    return clientSecretResponse;
   }
 }

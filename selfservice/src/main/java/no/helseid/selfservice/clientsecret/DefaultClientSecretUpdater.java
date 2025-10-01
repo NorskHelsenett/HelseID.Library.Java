@@ -3,16 +3,14 @@ package no.helseid.selfservice.clientsecret;
 import com.nimbusds.jose.jwk.JWK;
 import no.helseid.dpop.DPoPProofCreator;
 import no.helseid.endpoints.token.AccessTokenResponse;
-import no.helseid.endpoints.token.ErrorResponse;
+import no.helseid.endpoints.token.TokenRequestDetails;
 import no.helseid.endpoints.token.TokenResponse;
 import no.helseid.exceptions.HelseIdException;
 import no.helseid.grants.ClientCredentials;
 import no.helseid.selfservice.endpoints.clientsecret.ClientSecretEndpoint;
-import no.helseid.selfservice.endpoints.clientsecret.ClientSecretErrorResponse;
 import no.helseid.selfservice.endpoints.clientsecret.ClientSecretResponse;
 import no.helseid.selfservice.endpoints.clientsecret.ClientSecretSuccessResponse;
 import no.helseid.signing.Algorithm;
-import no.helseid.signing.KeyReference;
 import no.helseid.signing.RSAKeyReference;
 import no.helseid.signing.Util;
 
@@ -47,7 +45,7 @@ public class DefaultClientSecretUpdater implements ClientSecretUpdater {
   }
 
   public UpdatedClientSecretSuccess generateNewClientSecret() throws HelseIdException {
-    UpdatedClientSecretResult result = updateClientSecret(RSAKeyReference.generate(Algorithm.PS256));
+    UpdatedClientSecretResult result = updateClientSecret();
 
     if (result instanceof UpdatedClientSecretSuccess updatedClientSecretSuccess) {
       return updatedClientSecretSuccess;
@@ -56,15 +54,14 @@ public class DefaultClientSecretUpdater implements ClientSecretUpdater {
     throw new HelseIdException("Update of client secret failed");
   }
 
-  public UpdatedClientSecretResult updateClientSecret(KeyReference newKeyReference) throws HelseIdException {
-    TokenResponse tokenResponse = clientCredentials.getAccessToken(clientSecretScope);
-
-    if (tokenResponse instanceof ErrorResponse errorResponse) {
-      return new UpdatedClientSecretError(errorResponse, null);
-    }
+  public UpdatedClientSecretResult updateClientSecret() throws HelseIdException {
+    TokenRequestDetails requestDetails = new TokenRequestDetails.Builder()
+        .addMultipleScope(clientSecretScope)
+        .build();
+    TokenResponse tokenResponse = clientCredentials.getAccessToken(requestDetails);
 
     if (tokenResponse instanceof AccessTokenResponse accessTokenResponse) {
-      JWK jwk = Util.createJWKFromKeyReference(newKeyReference);
+      JWK jwk = Util.createJWKFromKeyReference(RSAKeyReference.generate(Algorithm.PS256));
       URI clientSecretEndpoint = URI.create(selfServiceClientSecretEndpoint.toString());
       ClientSecretResponse clientSecretResponse = ClientSecretEndpoint.sendRequest(
           clientSecretEndpoint,
@@ -73,15 +70,13 @@ public class DefaultClientSecretUpdater implements ClientSecretUpdater {
           jwk
       );
 
-      if (clientSecretResponse instanceof ClientSecretErrorResponse clientSecretErrorResponse) {
-        return new UpdatedClientSecretError(null, clientSecretErrorResponse);
-      }
-
       if (clientSecretResponse instanceof ClientSecretSuccessResponse clientSecretSuccessResponse) {
         return new UpdatedClientSecretSuccess(jwk.toJSONString(), clientSecretSuccessResponse.expiration());
       }
+
+      return new UpdatedClientSecretError(null, clientSecretResponse);
     }
 
-    throw new HelseIdException("Unrecognized response class: " + tokenResponse.getClass());
+    return new UpdatedClientSecretError(tokenResponse, null);
   }
 }
