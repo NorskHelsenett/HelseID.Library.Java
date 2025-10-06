@@ -60,7 +60,7 @@ public interface TokenEndpoint {
 
     // Should not happen because of DPoP
     if (initialTokenResponse.indicatesSuccess()) {
-      return handleSuccess(initialTokenResponse.toSuccessResponse().getTokens());
+      return handleSuccess(initialTokenResponse.toSuccessResponse().getTokens(), httpResponseWithoutIncludingDPoPNonceResponseHeader);
     }
 
     ErrorObject errorObjectWithoutDPoPNonce = initialTokenResponse.toErrorResponse().getErrorObject();
@@ -78,7 +78,7 @@ public interface TokenEndpoint {
     com.nimbusds.oauth2.sdk.TokenResponse dPoPTokenResponse = parseTokenResponse(httpResponse);
 
     if (dPoPTokenResponse.indicatesSuccess()) {
-      return handleSuccess(dPoPTokenResponse.toSuccessResponse().getTokens());
+      return handleSuccess(dPoPTokenResponse.toSuccessResponse().getTokens(), httpResponse);
     }
 
     return handleError(dPoPTokenResponse.toErrorResponse().getErrorObject());
@@ -89,14 +89,16 @@ public interface TokenEndpoint {
    * @param tokens the nimbus token response
    * @return a HelseID AccessTokenResponse
    */
-  private static AccessTokenResponse handleSuccess(Tokens tokens) {
+  private static AccessTokenResponse handleSuccess(Tokens tokens, HTTPResponse httpResponse) {
     DPoPAccessToken accessToken = tokens.getDPoPAccessToken();
 
     return new AccessTokenResponse(
         accessToken.toString(),
         Optional.ofNullable(accessToken.getType()).orElse(AccessTokenType.UNKNOWN).getValue(),
         accessToken.getLifetime(),
-        Optional.ofNullable(accessToken.getScope()).map(Scope::toStringList).orElse(Collections.emptyList())
+        Optional.ofNullable(accessToken.getScope()).map(Scope::toStringList).orElse(Collections.emptyList()),
+        httpResponse.getBody(),
+        httpResponse.getStatusCode()
     );
   }
 
@@ -124,7 +126,6 @@ public interface TokenEndpoint {
     var dPoPProof = dPoPProofCreator.createDPoPProofWithNonce(htu, new HttpMethod(htm.name()), dPoPNonce);
     httpRequest.setHeader("DPoP", dPoPProof);
 
-    HTTPResponse httpResponse;
     try {
       return httpRequest.send();
     } catch (IOException e) {

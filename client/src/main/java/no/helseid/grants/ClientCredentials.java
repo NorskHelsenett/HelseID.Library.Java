@@ -2,11 +2,11 @@ package no.helseid.grants;
 
 import no.helseid.cache.ExpiringCache;
 import no.helseid.cache.InMemoryExpiringCache;
-import no.helseid.clientassertion.AssertionDetails;
 import no.helseid.configuration.Client;
 import no.helseid.dpop.DPoPProofCreator;
 import no.helseid.dpop.DefaultDPoPProofCreator;
 import no.helseid.endpoints.token.AccessTokenResponse;
+import no.helseid.endpoints.token.TokenRequestDetails;
 import no.helseid.endpoints.token.TokenResponse;
 import no.helseid.exceptions.HelseIdException;
 import no.helseid.metadata.MetadataProvider;
@@ -19,19 +19,25 @@ import java.net.URI;
  */
 public interface ClientCredentials {
   /**
-   * Request access token from HelseID without assertion details, the token is cached and referenced thru-out it's lifetime
+   * Request access token from HelseID without details, the token is cached and referenced thru-out it's lifetime
    * @return the token response from HelseID, might be a AccessTokenResponse or an ErrorResponse
    * @throws HelseIdException if a request to HelseID returned in an unprocessable failure
    */
   TokenResponse getAccessToken() throws HelseIdException;
 
   /**
-   * Request access token from HelseID with assertion details, the token is cached and referenced thru-out it's lifetime
-   * @param assertionDetails the assertion details to be included in the client assertion
+   * Request access token from HelseID including details, the token is cached and referenced thru-out it's lifetime
+   * @param tokenRequestDetails the details to be included in the token request
    * @return the token response from HelseID, might be a AccessTokenResponse or an ErrorResponse
    * @throws HelseIdException if a request to HelseID returned in an unprocessable failure
    */
-  TokenResponse getAccessToken(AssertionDetails assertionDetails) throws HelseIdException;
+  TokenResponse getAccessToken(TokenRequestDetails tokenRequestDetails) throws HelseIdException;
+
+  /**
+   * Returning the dpop proof creator used in client credentials
+   * @return the dpop proof creator used in client credentials
+   */
+  DPoPProofCreator getCurrentDPoPProofCreator();
 
   /**
    * Builder class for Client Credentials

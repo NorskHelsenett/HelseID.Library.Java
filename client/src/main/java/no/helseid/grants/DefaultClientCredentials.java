@@ -11,10 +11,13 @@ import no.helseid.configuration.Client;
 import no.helseid.dpop.DPoPProofCreator;
 import no.helseid.endpoints.token.AccessTokenResponse;
 import no.helseid.endpoints.token.TokenEndpoint;
+import no.helseid.endpoints.token.TokenRequestDetails;
 import no.helseid.endpoints.token.TokenResponse;
 import no.helseid.exceptions.HelseIdException;
 import no.helseid.metadata.MetadataProvider;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Collections;
 
@@ -22,6 +25,7 @@ import java.util.Collections;
  * Default implementation of Client Credentials
  */
 public final class DefaultClientCredentials implements ClientCredentials {
+  private final MessageDigest digest;
   private final Client client;
   private final MetadataProvider metadataProvider;
   private final ExpiringCache<AccessTokenResponse> tokenCache;
@@ -43,6 +47,16 @@ public final class DefaultClientCredentials implements ClientCredentials {
     this.metadataProvider = metadataProvider;
     this.tokenCache = tokenCache;
     this.dPoPProofCreator = dPoPProofCreator;
+    try {
+      this.digest = MessageDigest.getInstance("SHA-256");
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public DPoPProofCreator getCurrentDPoPProofCreator() {
+    return dPoPProofCreator;
   }
 
   @Override
@@ -51,9 +65,11 @@ public final class DefaultClientCredentials implements ClientCredentials {
   }
 
   @Override
-  public TokenResponse getAccessToken(AssertionDetails assertionDetails) throws HelseIdException {
+  public TokenResponse getAccessToken(TokenRequestDetails tokenRequestDetails) throws HelseIdException {
     var metadata = metadataProvider.getMetadata();
-    var cacheKey = assertionDetails == null ? "assertion_detail_cache_key" : assertionDetails.id();
+
+    var cacheKey = createCacheKey(client, tokenRequestDetails);
+
     TokenResponse helseIdTokenResponse = tokenCache.get(cacheKey);
 
     if (helseIdTokenResponse != null) {
@@ -64,7 +80,7 @@ public final class DefaultClientCredentials implements ClientCredentials {
     SignedJWT clientAssertion = ClientAssertion.createClientAssertionSignedJWT(
         metadata.getIssuer().getValue(),
         client,
-        assertionDetails == null ? null : assertionDetails.value()
+        tokenRequestDetails == null ? null : AssertionDetails.fromTokenRequestDetails(tokenRequestDetails)
     );
 
     TokenResponse tokenResponse = TokenEndpoint.sendRequest(
@@ -85,4 +101,27 @@ public final class DefaultClientCredentials implements ClientCredentials {
     return tokenResponse;
   }
 
+  private String createCacheKey(Client client, TokenRequestDetails tokenRequestDetails) {
+    StringBuilder builder = new StringBuilder();
+    builder.append(client.keyReference().getKeyId());
+
+    if (tokenRequestDetails == null) {
+      return new String(digest.digest(builder.toString().getBytes()));
+    }
+
+    if (tokenRequestDetails.parentOrganizationNumber() != null) {
+      builder.append(tokenRequestDetails.parentOrganizationNumber());
+    }
+    if (tokenRequestDetails.childOrganizationNumber() != null) {
+      builder.append(tokenRequestDetails.childOrganizationNumber());
+    }
+    if (tokenRequestDetails.sfmJournalId() != null) {
+      builder.append(tokenRequestDetails.sfmJournalId());
+    }
+    if (tokenRequestDetails.scope() != null) {
+      builder.append(tokenRequestDetails.scope());
+    }
+
+    return new String(digest.digest(builder.toString().getBytes()));
+  }
 }
