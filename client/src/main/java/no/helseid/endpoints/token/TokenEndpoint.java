@@ -15,10 +15,7 @@ import no.helseid.exceptions.HelseIdException;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * A util for performing requests to the token endpoint
@@ -92,11 +89,17 @@ public interface TokenEndpoint {
   private static AccessTokenResponse handleSuccess(Tokens tokens, HTTPResponse httpResponse) {
     DPoPAccessToken accessToken = tokens.getDPoPAccessToken();
 
+    Set<String> scope = Optional.ofNullable(accessToken.getScope())
+        .map(Scope::toStringList)
+        .map(HashSet::new)
+        .map(Collections::unmodifiableSet)
+        .orElse(Collections.emptySet());
+
     return new AccessTokenResponse(
         accessToken.toString(),
         Optional.ofNullable(accessToken.getType()).orElse(AccessTokenType.UNKNOWN).getValue(),
         accessToken.getLifetime(),
-        Optional.ofNullable(accessToken.getScope()).map(Scope::toStringList).orElse(Collections.emptyList()),
+        scope,
         httpResponse.getBody(),
         httpResponse.getStatusCode()
     );

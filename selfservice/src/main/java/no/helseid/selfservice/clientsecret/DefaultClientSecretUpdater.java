@@ -15,7 +15,7 @@ import no.helseid.signing.RSAKeyReference;
 import no.helseid.signing.Util;
 
 import java.net.URI;
-import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -25,7 +25,7 @@ public class DefaultClientSecretUpdater implements ClientSecretUpdater {
   private final URI selfServiceClientSecretEndpoint;
   private final ClientCredentials clientCredentials;
   private final DPoPProofCreator dPoPProofCreator;
-  private final List<String> clientSecretScope;
+  private final Set<String> clientSecretScope;
 
   /**
    * Creates the default implementation of the ClientSecretUpdater
@@ -36,7 +36,7 @@ public class DefaultClientSecretUpdater implements ClientSecretUpdater {
   public DefaultClientSecretUpdater(
       final URI selfServiceClientSecretEndpoint,
       final ClientCredentials clientCredentials,
-      final List<String> clientSecretScope
+      final Set<String> clientSecretScope
   ) {
     this.selfServiceClientSecretEndpoint = selfServiceClientSecretEndpoint;
     this.clientCredentials = clientCredentials;

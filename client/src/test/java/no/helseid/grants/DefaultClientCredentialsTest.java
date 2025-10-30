@@ -8,11 +8,11 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import no.helseid.cache.InMemoryExpiringCache;
-import no.helseid.endpoints.token.TokenRequestDetails;
 import no.helseid.configuration.Client;
 import no.helseid.dpop.DefaultDPoPProofCreator;
 import no.helseid.endpoints.token.AccessTokenResponse;
 import no.helseid.endpoints.token.ErrorResponse;
+import no.helseid.endpoints.token.TokenRequestDetails;
 import no.helseid.endpoints.token.TokenResponse;
 import no.helseid.exceptions.HelseIdException;
 import no.helseid.signing.JWKKeyReference;
@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -34,7 +34,7 @@ class DefaultClientCredentialsTest {
   private static final String MOCK_ACCESS_TOKEN = "header.payload.signature";
   private static final JWK JWK;
   private static final KeyReference KEY_REFERENCE;
-  private static final List<String> SCOPE = Collections.singletonList("nhn:helseid/test");
+  private static final Set<String> SCOPE = Collections.singleton("nhn:helseid/test");
 
   static {
     try {

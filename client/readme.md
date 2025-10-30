@@ -12,29 +12,40 @@ Examples of resources requiring authentication with HelseID is found at [utvikle
 
 ## Getting started
 
-### Configuration of a client
-All clients are identified by a client id alongside a client assertion signed by a private key only known by the client.
-Relevant information is passed as a `Client` object.
-
+### Client private key
+HelseID requires use of a signing key to do client authentication. The public key is registered via HelseID Selvbetjening while the private key is protected and is only accessible for use by the application itself.
 ```java
+import no.helseid.signing.JWKKeyReference;
 
-// NB: Load your private key from a secure storage
 KeyReference myPrivateKeyReference = JWKKeyReference.parse("""
-  {"alg":"PS256","d":"...","dp":"...","dq":"...","e":"...","key_ops":["sign"],"kty":"RSA","n":"...","p":"...","q":"...","qi":"...","kid":"..."}
+  {"alg":"PS256","key_ops":["sign"],"kty":"RSA","d":"...","dp":"...","dq":"...","e":"...","n":"...","p":"...","q":"...","qi":"...","kid":"..."}
 """);
+```
+
+### Configuration of a client
+The reference to the private key is passed to a `Client` object alongside the client-id and a list of scopes.
+```java
+import no.helseid.configuration.Client;
 
 // Configure your client
-Client client = new Client("my-client-id", myPrivateKeyReference, List.of("nhn:helseid/scope1", "nhn:helseid/scope2"));
+Client myClient = new Client(
+    "my-client-id",
+    myPrivateKeyReference,
+    List.of("nhn:api/scope1", "nhn:api/scope2")
+);
 ```
 
 ### Client Credentials Grant
 The client credentials grant is suited for authentication where no user is involved.
 
 ```java
-Client client = new Client(CLIENT_ID, myPrivateKeyReference, SCOPE);
-DPoPProofCreator dPoPProofCreator = DPoP.getDPoPProofCreator(client.keyReference());
-ClientCredentials clientCredentials = new ClientCredentials.Builder(AUTHORITY)
-    .withClient(client)
+import no.helseid.grants.ClientCredentials;
+import no.helseid.endpoints.token.TokenResponse;
+import no.helseid.endpoints.token.AccessTokenResponse;
+import no.helseid.endpoints.token.ErrorResponse;
+
+ClientCredentials clientCredentials = new ClientCredentials.Builder("https://helseid-sts.test.nhn.no")
+    .withClient(myClient)
     .build();
 
 TokenResponse tokenResponse = clientCredentials.getAccessToken();
@@ -44,13 +55,41 @@ if (tokenResponse instanceof ErrorResponse errorResponse) {
 }
 
 if (tokenResponse instanceof AccessTokenResponse accessTokenResponse) {
-    URI resourceServer = URI.create("https://api.selvbetjening.test.nhn.no/v1/client/");
-    String dPoPProof = dPoPProofCreator.createDPoPProof(resourceServer, "GET", accessTokenResponse.accessToken);
-    
-    // Perform request to resourceServer
+  // Perform request to resourceServer
 }
 ```
-An example implementation for both [single-tenant](../examples/src/main/java/no/helseid/ClientCredentialsSingleTenantExample.java) and [multi-tenant](../examples/src/main/java/no/helseid/ClientCredentialsMultiTenantExample.java) is found in the examples module.
 
-### Token Exchange Grant
-Not yet implemented, only suitable in combination with a resource server
+### Token request details
+When more details is needed in the context you may construct a `TokenRequestDetails` object. In the details you can specify the tenancy, relevant scopes of the request, organization numbers and sfm-journal-id.
+In a single tenant only the child organization number will be provided since the client is bound to a single parent organization.
+```java
+TokenRequestDetails tokenRequestDetails = new TokenRequestDetails.Builder()
+    .withTenancy(TENANCY)
+    .withParentOrganizationNumber("994598759")
+    .withChildOrganizationNumber("994598759")
+    .withSfmJournalId("sfm-id")
+    .addScope("nhn:api/scope2")
+    .addScope("nhn:sfm/scope1")
+    .build();
+```
+
+### Accessing an API using DPoP 
+If DPoP is required when accessing an API, a `DPoPProofCreator` can be retrieved from the `ClientCredentials` context.
+A DPoP-proof can be created by passing the endpoint, http-method and an access-token to the `createDPoPProof` method, returning a proof bound to the access token provided.
+
+```java
+import no.helseid.dpop.DPoPProofCreator;
+
+DPoPProofCreator dPoPProofCreator = clientCredentials.getCurrentDPoPProofCreator();
+var accessToken = accessTokenResponse.accessToken();
+var endpoint = URI.create("https://api.no/");
+
+HttpRequest httpRequest = HttpRequest.newBuilder(endpoint)
+    .GET()
+    .header("Authorization", "DPoP " + accessToken)
+    .header("DPoP", dPoPProofCreator.createDPoPProof(endpoint, HttpMethod.GET, accessToken))
+    .build();
+```
+
+
+An example of a more complete implementation for a [multi-tenant client](../examples/src/main/java/no/helseid/ClientCredentialsExample.java) is found in the examples module.

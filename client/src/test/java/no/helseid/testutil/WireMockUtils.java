@@ -5,7 +5,7 @@ import net.minidev.json.JSONObject;
 import no.helseid.signing.Algorithm;
 
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
@@ -40,7 +40,7 @@ public class WireMockUtils {
         .willReturn(response));
   }
 
-  public static void stub_token_matching_dpop_nonce_returning_mock_access_token(WireMockServer wms, String expectedDPoPNonce, String mockAccessToken, List<String> scopes) {
+  public static void stub_token_matching_dpop_nonce_returning_mock_access_token(WireMockServer wms, String expectedDPoPNonce, String mockAccessToken, Set<String> scopes) {
     // Expected result with a DPoP proof containing expected nonce
     var response = new JSONObject()
         .appendField("access_token", mockAccessToken)
