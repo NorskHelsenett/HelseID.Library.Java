@@ -14,12 +14,12 @@ import no.helseid.signing.JWKKeyReference;
 
 import java.net.URI;
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 
 import static no.helseid.examples.constants.ExampleConstants.*;
 
 public class ClientCredentialsExample {
-  private static final List<String> SCOPE = Collections.singletonList("nhn:kjernejorunal/api");
+  private static final Set<String> SCOPE = Collections.singleton("nhn:kjernejorunal/api");
 
   public static void main(String[] args) throws HelseIdException {
     Client client = new Client(CLIENT_ID, JWKKeyReference.parse(JWK), SCOPE);

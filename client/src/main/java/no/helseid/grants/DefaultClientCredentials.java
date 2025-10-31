@@ -20,6 +20,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Set;
 
 /**
  * Default implementation of Client Credentials
@@ -67,8 +68,9 @@ public final class DefaultClientCredentials implements ClientCredentials {
   @Override
   public TokenResponse getAccessToken(TokenRequestDetails tokenRequestDetails) throws HelseIdException {
     var metadata = metadataProvider.getMetadata();
+    var scopeSet = getCurrentScope(client, tokenRequestDetails);
 
-    var cacheKey = createCacheKey(client, tokenRequestDetails);
+    var cacheKey = createCacheKey(client, tokenRequestDetails, scopeSet);
 
     TokenResponse helseIdTokenResponse = tokenCache.get(cacheKey);
 
@@ -101,7 +103,7 @@ public final class DefaultClientCredentials implements ClientCredentials {
     return tokenResponse;
   }
 
-  private String createCacheKey(Client client, TokenRequestDetails tokenRequestDetails) {
+  private String createCacheKey(Client client, TokenRequestDetails tokenRequestDetails, Set<String> scopeSet) {
     StringBuilder builder = new StringBuilder();
     builder.append(client.keyReference().getKeyId());
 
@@ -118,10 +120,17 @@ public final class DefaultClientCredentials implements ClientCredentials {
     if (tokenRequestDetails.sfmJournalId() != null) {
       builder.append(tokenRequestDetails.sfmJournalId());
     }
-    if (tokenRequestDetails.scope() != null) {
-      builder.append(tokenRequestDetails.scope());
+    if (scopeSet != null) {
+      scopeSet.forEach(builder::append);
     }
 
     return new String(digest.digest(builder.toString().getBytes()));
+  }
+
+  private Set<String> getCurrentScope(Client client, TokenRequestDetails tokenRequestDetails) {
+    if (tokenRequestDetails == null || tokenRequestDetails.scope().isEmpty()) {
+      return client.scope();
+    }
+    return tokenRequestDetails.scope();
   }
 }

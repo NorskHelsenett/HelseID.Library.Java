@@ -13,14 +13,14 @@ public final class TokenRequestDetails {
   private final String parentOrganizationNumber;
   private final String childOrganizationNumber;
   private final String sfmJournalId;
-  private final String scope;
+  private final Set<String> scope;
 
   public TokenRequestDetails(
       Tenancy tenancy,
       String parentOrganizationNumber,
       String childOrganizationNumber,
       String sfmJournalId,
-      String scope
+      Set<String> scope
   ) {
     this.tenancy = tenancy;
     this.parentOrganizationNumber = parentOrganizationNumber;
@@ -45,12 +45,12 @@ public final class TokenRequestDetails {
     return sfmJournalId;
   }
 
-  public String scope() {
+  public Set<String> scope() {
     return scope;
   }
 
   public static class Builder {
-    private final List<String> scopeList = new ArrayList<>();
+    private final Set<String> scopeSet = new HashSet<>();
     private Tenancy tenancy = Tenancy.SINGLE_TENANT;
     private String parentOrganizationNumber;
     private String childOrganizationNumber;
@@ -106,18 +106,18 @@ public final class TokenRequestDetails {
      * @return the current builder
      */
     public Builder addScope(String scope) {
-      this.scopeList.add(scope);
+      this.scopeSet.add(scope);
       return this;
     }
 
     /**
      * Add multiple scopes to the token request details
      *
-     * @param scopeList the list of scopes to be included in the request
+     * @param scopes the set of scopes to be included in the request
      * @return the current builder
      */
-    public Builder addMultipleScope(List<String> scopeList) {
-      this.scopeList.addAll(scopeList);
+    public Builder addMultipleScope(Set<String> scopes) {
+      this.scopeSet.addAll(scopes);
       return this;
     }
 
@@ -133,7 +133,7 @@ public final class TokenRequestDetails {
           parentOrganizationNumber,
           childOrganizationNumber,
           sfmJournalId,
-          String.join(" ", scopeList)
+          Collections.unmodifiableSet(scopeSet)
       );
     }
   }
