@@ -49,4 +49,4 @@ if (updatedClientSecretResult instanceof UpdatedClientSecretError updatedClientS
 }
 ```
 
-An example of a more complete implementation for [updating a client secret](../examples/src/main/java/no/helseid/SelfServiceClientSecretRotationExample.java) is found in the examples module.
+An example of a more complete implementation for [updating a client secret](../examples/src/main/java/no/helseid/examples/SelfServiceClientSecretRotationExample.java) is found in the examples module.

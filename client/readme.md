@@ -92,4 +92,4 @@ HttpRequest httpRequest = HttpRequest.newBuilder(endpoint)
 ```
 
 
-An example of a more complete implementation for a [multi-tenant client](../examples/src/main/java/no/helseid/ClientCredentialsExample.java) is found in the examples module.
+An example of a more complete implementation for a [multi-tenant client](../examples/src/main/java/no/helseid/examples/ClientCredentialsExample.java) is found in the examples module.
