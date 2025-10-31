@@ -61,7 +61,7 @@ if (tokenResponse instanceof AccessTokenResponse accessTokenResponse) {
 
 ### Token request details
 When more details is needed in the context you may construct a `TokenRequestDetails` object. In the details you can specify the tenancy, relevant scopes of the request, organization numbers and sfm-journal-id.
-In a single tenant only the child organization number will be provided since the client is bound to a single parent organization.
+When using a single tenant client the child organization number can optionally be provided, the parent organization number is not specified since the client is bound to a single parent organization already known by HelseID.
 ```java
 TokenRequestDetails tokenRequestDetails = new TokenRequestDetails.Builder()
     .withTenancy(TENANCY)
