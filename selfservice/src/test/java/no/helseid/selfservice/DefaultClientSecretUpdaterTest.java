@@ -24,7 +24,7 @@ import wiremock.net.minidev.json.JSONObject;
 import java.net.URI;
 import java.time.ZonedDateTime;
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.badRequest;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 class DefaultClientSecretUpdaterTest {
   private static final String CLIENT_SECRET_PATH = "/v1/client-secret";
-  private static final List<String> CLIENT_SECRET_SCOPE = Collections.singletonList("nhn:selvbetjening/client");
+  private static final Set<String> CLIENT_SECRET_SCOPE = Collections.singleton("nhn:selvbetjening/client");
   private WireMockServer wms;
 
   private static ClientCredentials mockClientCredentials(TokenResponse tokenResponse) {
@@ -81,7 +81,7 @@ class DefaultClientSecretUpdaterTest {
         "my.access.token",
         "DPoP",
         10,
-        Collections.singletonList("nhn:helseid"),
+        Collections.singleton("nhn:helseid"),
         "",
         200
     ));

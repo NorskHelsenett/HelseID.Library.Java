@@ -18,15 +18,15 @@ import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static no.helseid.testutil.WireMockUtils.TOKEN_ENDPOINT_PATH;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TokenEndpointTest {
   private static final String MOCK_ACCESS_TOKEN = "header.payload.signature";
-  private static final List<String> SCOPE = Collections.singletonList("nhn:helseid/test");
+  private static final Set<String> SCOPE = Collections.singleton("nhn:helseid/test");
 
   private WireMockServer wms;
 

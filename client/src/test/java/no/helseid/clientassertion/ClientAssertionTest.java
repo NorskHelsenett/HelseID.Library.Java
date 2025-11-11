@@ -34,7 +34,7 @@ class ClientAssertionTest {
     Client client = new Client(
         "clientId",
         JWKKeyReference.parse(rsaKey.toJSONString()),
-        Collections.singletonList("nhn:helseid/test")
+        Collections.singleton("nhn:helseid/test")
     );
     SignedJWT clientAssertionSignedJWT = ClientAssertion.createClientAssertionSignedJWT(AUTHORITY, client);
 
@@ -47,7 +47,7 @@ class ClientAssertionTest {
     Client client = new Client(
         "clientId",
         null,
-        Collections.singletonList("nhn:helseid/test")
+        Collections.singleton("nhn:helseid/test")
     );
     try {
       ClientAssertion.createClientAssertionSignedJWT(AUTHORITY, client);

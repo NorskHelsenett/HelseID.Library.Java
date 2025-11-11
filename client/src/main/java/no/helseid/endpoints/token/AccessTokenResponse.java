@@ -1,6 +1,6 @@
 package no.helseid.endpoints.token;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * A representation of a successful response from the token-endpoint in HelseID
@@ -9,7 +9,7 @@ public final class AccessTokenResponse extends TokenResponse {
   private final String accessToken;
   private final String tokenType;
   private final long expiresInSeconds;
-  private final List<String> scope;
+  private final Set<String> scope;
 
   /**
    * Create a representation of a successful response from the token-endpoint in HelseID
@@ -22,7 +22,7 @@ public final class AccessTokenResponse extends TokenResponse {
       String accessToken,
       String tokenType,
       long expiresInSeconds,
-      List<String> scope,
+      Set<String> scope,
       String rawResponseBody,
       int statusCode
   ) {
@@ -58,10 +58,10 @@ public final class AccessTokenResponse extends TokenResponse {
   }
 
   /**
-   * Access the list of the scopes included in the returned token
-   * @return a list of the scopes included in the returned token
+   * Access the set of the scopes included in the returned token
+   * @return a set of the scopes included in the returned token
    */
-  public List<String> scope() {
+  public Set<String> scope() {
     return scope;
   }
 }
