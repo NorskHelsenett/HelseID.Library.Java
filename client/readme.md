@@ -7,6 +7,7 @@ Examples of resources requiring authentication with HelseID is found at [utvikle
 <dependency>
     <groupId>no.helseid</groupId>
     <artifactId>client</artifactId>
+    <version>1.0.0</version>
 </dependency>
 ```
 
