@@ -12,6 +12,20 @@ import java.util.Map;
  * Utility class for creating the assertion details
  */
 public abstract class AssertionDetails {
+
+  /**
+   * Hidden constructor for AssertionDetails
+   */
+  private AssertionDetails() {
+  }
+
+  /**
+   * Create a client assertion Map/List based on token request details
+   *
+   * @param details the details of the token request
+   * @return a map or list describing the client assertion
+   * @throws HelseIdException when something is misconfigured
+   */
   public static Object fromTokenRequestDetails(TokenRequestDetails details) throws HelseIdException {
     List<Map<String, Object>> assertionDetails = new ArrayList<>();
 

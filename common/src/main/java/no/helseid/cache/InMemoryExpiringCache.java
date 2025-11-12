@@ -9,6 +9,17 @@ import java.util.concurrent.ConcurrentHashMap;
 public class InMemoryExpiringCache<T> implements ExpiringCache<T> {
   private final ConcurrentHashMap<String, ExpiringValue<T>> cache = new ConcurrentHashMap<>();
 
+
+  /**
+   * Create a new instance of InMemoryExpiringCache
+   */
+  public InMemoryExpiringCache() {
+  }
+
+  /**
+   * @param key the key a value is cached on
+   * @return the cached value if present, otherwise null
+   */
   @Override
   public T get(String key) {
     var expiringValue = cache.get(key);
@@ -21,11 +32,19 @@ public class InMemoryExpiringCache<T> implements ExpiringCache<T> {
     return expiringValue.value;
   }
 
+  /**
+   * @param key the key the value should be cached on
+   * @param value the value to be cached
+   * @param expireAtEpochMilliseconds when the value expires
+   */
   @Override
   public void put(String key, T value, long expireAtEpochMilliseconds) {
     cache.put(key, new ExpiringValue<>(value, expireAtEpochMilliseconds));
   }
 
+  /**
+   * @param key the key a value is cached on
+   */
   @Override
   public void remove(String key) {
     cache.remove(key);
