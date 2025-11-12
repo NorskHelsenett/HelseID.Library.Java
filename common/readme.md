@@ -6,8 +6,6 @@ The common package is usually not necessary to declare as a dependency since oth
 <dependency>
     <groupId>no.helseid</groupId>
     <artifactId>common</artifactId>
+    <version>1.0.0</version>
 </dependency>
 ```
-
-## Exceptions
-

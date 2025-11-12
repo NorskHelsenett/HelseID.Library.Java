@@ -5,6 +5,7 @@
 <dependency>
     <groupId>no.helseid</groupId>
     <artifactId>selfservice</artifactId>
+    <version>1.0.0</version>
 </dependency>
 ```
 
