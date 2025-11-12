@@ -10,7 +10,9 @@
     </parent>
 
     <artifactId>selfservice</artifactId>
+    <version>1.0.0</version>
 
+    <name>Self Service</name>
     <dependencies>
         <dependency>
             <groupId>no.helseid</groupId>

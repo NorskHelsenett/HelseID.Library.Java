@@ -12,6 +12,11 @@
         <url>https://www.nhn.no/tjenester/helseid</url>
     </organization>
 
+    <properties>
+        <skipPublishing>false</skipPublishing>
+        <skipGPGSigning>false</skipGPGSigning>
+    </properties>
+
     <name>HelseId Library</name>
     <developers>
         <developer>
@@ -214,6 +219,9 @@
                                 </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <failOnWarnings>true</failOnWarnings>
+                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -227,6 +235,9 @@
                                 </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <skip>${skipGPGSigning}</skip>
+                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.sonatype.central</groupId>
@@ -234,8 +245,11 @@
                         <extensions>true</extensions>
                         <configuration>
                             <autoPublish>true</autoPublish>
+                            <checksums>all</checksums>
                             <publishingServerId>central</publishingServerId>
                             <centralBaseUrl>https://central.sonatype.com</centralBaseUrl>
+                            <ignorePublishedComponents>true</ignorePublishedComponents>
+                            <skipPublishing>${skipPublishing}</skipPublishing>
                         </configuration>
                     </plugin>
                 </plugins>
