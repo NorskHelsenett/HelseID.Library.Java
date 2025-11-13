@@ -15,6 +15,16 @@ public final class TokenRequestDetails {
   private final String sfmJournalId;
   private final Set<String> scope;
 
+  /**
+   * Create a new instance of TokenRequestDetails
+   * It is recomended to use the Builder class
+   *
+   * @param tenancy the client tenancy
+   * @param parentOrganizationNumber the parent organization number if relevant
+   * @param childOrganizationNumber the child organization number if relevant
+   * @param sfmJournalId the SFM journal id if relevant
+   * @param scope the scopes for the current request if relevant
+   */
   public TokenRequestDetails(
       Tenancy tenancy,
       String parentOrganizationNumber,
@@ -29,32 +39,61 @@ public final class TokenRequestDetails {
     this.scope = scope;
   }
 
+  /**
+   * Returning the tenanct of the request
+   * @return the tenancy of the request
+   */
   public Tenancy tenancy() {
     return tenancy;
   }
 
+  /**
+   * Returning the parent organization number of the request
+   * @return the parent organization number of the request
+   */
   public String parentOrganizationNumber() {
     return parentOrganizationNumber;
   }
 
+  /**
+   * Returning the child organization number of the request
+   * @return the child organization number of the request
+   */
   public String childOrganizationNumber() {
     return childOrganizationNumber;
   }
 
+  /**
+   * Returning the SFM journal-id of the request
+   * @return the SFM journal-id of the request
+   */
   public String sfmJournalId() {
     return sfmJournalId;
   }
 
+  /**
+   * Returning the scope set of the request
+   * @return the scope set of the request
+   */
   public Set<String> scope() {
     return scope;
   }
 
+  /**
+   * Builder class for TokenRequestDetails
+   */
   public static class Builder {
     private final Set<String> scopeSet = new HashSet<>();
     private Tenancy tenancy = Tenancy.SINGLE_TENANT;
     private String parentOrganizationNumber;
     private String childOrganizationNumber;
     private String sfmJournalId;
+
+    /**
+     * Create a new Builder instance for TokenRequestDetails
+     */
+    public Builder() {
+    }
 
     /**
      * Assign a tenancy for the client, default to single tenancy
@@ -71,6 +110,7 @@ public final class TokenRequestDetails {
      * Assign an organization number representing the parent organization
      *
      * @param parentOrganizationNumber identifies the parent organization, only relevant for multi tenant clients
+     * @return the current builder
      */
     public Builder withParentOrganizationNumber(String parentOrganizationNumber) {
       this.parentOrganizationNumber = parentOrganizationNumber;

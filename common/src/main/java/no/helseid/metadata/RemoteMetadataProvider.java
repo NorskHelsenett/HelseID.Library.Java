@@ -58,6 +58,12 @@ public class RemoteMetadataProvider implements MetadataProvider {
     return cache.get(CACHE_KEY);
   }
 
+  /**
+   * Get metadata from remote location
+   *
+   * @return metadata object
+   * @throws HelseIdException if a fetch fails
+   */
   private OIDCProviderMetadata fetchMetadata() throws HelseIdException{
     try {
       return OIDCProviderMetadata.resolve(Issuer.parse(authority.toString()));
@@ -66,6 +72,12 @@ public class RemoteMetadataProvider implements MetadataProvider {
     }
   }
 
+  /**
+   * Create a new instance of MetadataProvider bound to a remote authority
+   *
+   * @param authority the authority which the metadata should be fetched for
+   * @return a new instance of a RemoteMetadataProvider describing the authority
+   */
   public static synchronized RemoteMetadataProvider getInstance(URI authority) {
     if (!instanceMap.containsKey(authority.toString())) {
       instanceMap.put(authority.toString(), new RemoteMetadataProvider(authority, MILLISECONDS_IN_A_DAY, new InMemoryExpiringCache<>()));

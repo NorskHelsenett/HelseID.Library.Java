@@ -4,11 +4,14 @@ package no.helseid.endpoints.token;
  * A generic representation of a response from the token endpoint in HelseID
  */
 public abstract class TokenResponse {
-  protected final String rawResponseBody;
+  private final String rawResponseBody;
   private final int statusCode;
 
   /**
-   * Used by subclasses
+   * Create a new instance of TokenResponse, used by subclasses
+   *
+   * @param rawResponseBody the raw response body of a response
+   * @param statusCode the status code of a response
    */
   protected TokenResponse(String rawResponseBody, Integer statusCode) {
     this.statusCode = statusCode;
@@ -17,6 +20,7 @@ public abstract class TokenResponse {
 
   /**
    * Access the raw body of the HTTP response
+   *
    * @return the raw body of the HTTP response
    */
   public String rawResponseBody() {
@@ -25,6 +29,7 @@ public abstract class TokenResponse {
 
   /**
    * Access the HTTP status-code returned
+   *
    * @return the HTTP status-code returned
    */
   public int statusCode() {

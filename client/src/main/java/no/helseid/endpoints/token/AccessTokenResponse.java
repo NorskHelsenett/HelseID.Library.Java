@@ -13,10 +13,13 @@ public final class AccessTokenResponse extends TokenResponse {
 
   /**
    * Create a representation of a successful response from the token-endpoint in HelseID
+   *
    * @param accessToken the access token returned from HelseID
    * @param tokenType the token type, case-insensitive
    * @param expiresInSeconds the number of seconds until the token expires
    * @param scope the scopes included in the returned token
+   * @param rawResponseBody the raw response body
+   * @param statusCode the status code of the response
    */
   public AccessTokenResponse(
       String accessToken,
@@ -35,6 +38,7 @@ public final class AccessTokenResponse extends TokenResponse {
 
   /**
    * Access the access token returned from HelseID
+   *
    * @return the access token returned from HelseID
    */
   public String accessToken() {
