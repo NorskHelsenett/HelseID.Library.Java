@@ -12,11 +12,6 @@
         <url>https://www.nhn.no/tjenester/helseid</url>
     </organization>
 
-    <properties>
-        <skipPublishing>false</skipPublishing>
-        <skipGPGSigning>false</skipGPGSigning>
-    </properties>
-
     <name>HelseId Library</name>
     <developers>
         <developer>
@@ -156,6 +151,27 @@
                 <module>examples</module>
                 <module>selfservice</module>
             </modules>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.10.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <failOnWarnings>true</failOnWarnings>
+                            <excludePackageNames>no.helseid.examples:no.helseid.examples.*</excludePackageNames>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <profile>
             <id>release-to-maven-central</id>
@@ -235,9 +251,6 @@
                                 </goals>
                             </execution>
                         </executions>
-                        <configuration>
-                            <skip>${skipGPGSigning}</skip>
-                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.sonatype.central</groupId>
@@ -249,12 +262,10 @@
                             <publishingServerId>central</publishingServerId>
                             <centralBaseUrl>https://central.sonatype.com</centralBaseUrl>
                             <ignorePublishedComponents>true</ignorePublishedComponents>
-                            <skipPublishing>${skipPublishing}</skipPublishing>
                         </configuration>
                     </plugin>
                 </plugins>
             </build>
         </profile>
     </profiles>
-
 </project>
