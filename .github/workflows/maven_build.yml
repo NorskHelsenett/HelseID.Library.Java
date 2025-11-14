@@ -1,6 +1,6 @@
 name: Maven Build
 
-on: [push, pull_request, release]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -13,29 +13,5 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-
       - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots verify
-  release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Apache Maven Central
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          java-version: '21'
-          server-id: central
-          cache: maven
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_CENTRAL_TOKEN
-          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
-          gpg-passphrase: MAVEN_GPG_PASSPHRASE
-      - name: Publish to Apache Maven Central
-        env:
-          MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          MAVEN_CENTRAL_TOKEN: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
-          # Kjører kun en faktisk publish når en release er publisert, ellers er dette en dry-run
-          SKIP_PUBLISHING: ${{ github.event.action != 'published' }}
-        run: mvn deploy -P release-to-maven-central -DskipPublishing=$SKIP_PUBLISHING
+        run: mvn --batch-mode verify
