@@ -15,6 +15,7 @@ import no.helseid.endpoints.token.ErrorResponse;
 import no.helseid.endpoints.token.TokenRequestDetails;
 import no.helseid.endpoints.token.TokenResponse;
 import no.helseid.exceptions.HelseIdException;
+import no.helseid.metadata.RemoteMetadataProvider;
 import no.helseid.signing.JWKKeyReference;
 import no.helseid.signing.KeyReference;
 import no.helseid.testutil.WireMockUtils;
@@ -22,9 +23,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
-import java.util.Collections;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.*;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -158,5 +158,75 @@ class DefaultClientCredentialsTest {
     assertInstanceOf(ErrorResponse.class, tokenResponse);
     ErrorResponse errorResponse = (ErrorResponse) tokenResponse;
     assertEquals(500, errorResponse.statusCode());
+  }
+
+  @Test
+  void ClientCredentials_should_handle_simultaneous_requests() throws HelseIdException, InterruptedException, ExecutionException, TimeoutException {
+    ExecutorService executor = Executors.newFixedThreadPool(2);
+
+    // Providing metadata for the test
+    WireMockUtils.stub_metadata_with_base_url(wms);
+
+    // Expected failure with a DPoP proof without nonce
+    WireMockUtils.stub_token_with_use_dpop_nonce_response(wms, DPOP_NONCE);
+
+    // Expected result with a DPoP proof containing expected nonce
+    WireMockUtils.stub_token_matching_dpop_nonce_returning_mock_access_token(wms, DPOP_NONCE, MOCK_ACCESS_TOKEN, SCOPE);
+
+    URI authority = URI.create(wms.baseUrl());
+    Client client = new Client("client-id", KEY_REFERENCE, SCOPE);
+    ClientCredentials clientCredentials = new ClientCredentials.Builder(authority).withClient(client).build();
+
+    // Initalizing the metadata, ensuring it is called only once
+    var metadata = RemoteMetadataProvider.getInstance(authority);
+    metadata.getMetadata();
+
+    List<String> orgNrList = Arrays.asList(
+        "994598700",
+        "994598701",
+        "994598702",
+        "994598703",
+        "994598704"
+    );
+
+    List<Future<TokenResponse>> futures = executor.invokeAll(
+        orgNrList.stream()
+            .map(orgNr -> (Callable<TokenResponse>) () -> {
+              try {
+                var tokenRequestDetails = new TokenRequestDetails.Builder().withChildOrganizationNumber(orgNr).build();
+                return clientCredentials.getAccessToken(tokenRequestDetails);
+              } catch (HelseIdException e) {
+                throw new RuntimeException(e);
+              }
+            }).toList(),
+        10, TimeUnit.SECONDS);
+    executor.shutdown();
+
+
+    for (int i = 0; i < orgNrList.size(); i++) {
+      var tokenResponse = futures.get(i).get(1, TimeUnit.SECONDS);
+      var tokenRequestDetails = new TokenRequestDetails.Builder().withChildOrganizationNumber(orgNrList.get(i)).build();
+      var tokenResponseCached = clientCredentials.getAccessToken(tokenRequestDetails);
+
+      if (tokenResponse instanceof AccessTokenResponse accessTokenResponse) {
+        if (tokenResponseCached instanceof AccessTokenResponse accessTokenResponseCached) {
+          assertEquals(
+              accessTokenResponseCached.accessToken(),
+              accessTokenResponse.accessToken(),
+              "Cached access token is not equal the original access token"
+          );
+        } else {
+          fail("Cached token response " + i + " failed");
+        }
+      } else {
+        fail("Token response " + i + " failed");
+      }
+    }
+
+    // Once, since the metadata is initialized prior to the requests
+    wms.verify(1, getRequestedFor(urlEqualTo("/.well-known/openid-configuration")));
+
+    // Two per unique token requests
+    wms.verify(orgNrList.size() * 2, postRequestedFor(urlEqualTo("/connect/token")));
   }
 }
