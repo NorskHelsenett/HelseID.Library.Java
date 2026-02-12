@@ -162,8 +162,6 @@ class DefaultClientCredentialsTest {
 
   @Test
   void ClientCredentials_should_handle_simultaneous_requests() throws HelseIdException, InterruptedException, ExecutionException, TimeoutException {
-    ExecutorService executor = Executors.newFixedThreadPool(2);
-
     // Providing metadata for the test
     WireMockUtils.stub_metadata_with_base_url(wms);
 
@@ -189,6 +187,7 @@ class DefaultClientCredentialsTest {
         "994598704"
     );
 
+    ExecutorService executor = Executors.newFixedThreadPool(orgNrList.size());
     List<Future<TokenResponse>> futures = executor.invokeAll(
         orgNrList.stream()
             .map(orgNr -> (Callable<TokenResponse>) () -> {
