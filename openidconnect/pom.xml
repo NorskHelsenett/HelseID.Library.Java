@@ -6,27 +6,35 @@
     <parent>
         <groupId>no.helseid</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.0</version>
     </parent>
 
-    <artifactId>examples</artifactId>
+    <artifactId>openidconnect</artifactId>
 
     <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.release>17</maven.compiler.release>
     </properties>
-
     <dependencies>
         <dependency>
             <groupId>no.helseid</groupId>
-            <artifactId>client</artifactId>
-            <version>1.0.2</version>
+            <artifactId>common</artifactId>
+            <version>1.0.0</version>
+            <scope>compile</scope>
         </dependency>
-
         <dependency>
             <groupId>no.helseid</groupId>
-            <artifactId>selfservice</artifactId>
-            <version>1.0.2</version>
+            <artifactId>common</artifactId>
+            <version>1.0.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>no.helseid</groupId>
+            <artifactId>client</artifactId>
+            <version>1.0.0</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
+
 </project>
