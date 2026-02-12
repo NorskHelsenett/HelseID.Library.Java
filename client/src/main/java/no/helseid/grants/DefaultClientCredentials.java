@@ -19,6 +19,7 @@ import no.helseid.metadata.MetadataProvider;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+
 import java.util.Collections;
 import java.util.Set;
 
@@ -26,7 +27,6 @@ import java.util.Set;
  * Default implementation of Client Credentials
  */
 public final class DefaultClientCredentials implements ClientCredentials {
-  private final MessageDigest digest;
   private final Client client;
   private final MetadataProvider metadataProvider;
   private final ExpiringCache<AccessTokenResponse> tokenCache;
@@ -48,11 +48,6 @@ public final class DefaultClientCredentials implements ClientCredentials {
     this.metadataProvider = metadataProvider;
     this.tokenCache = tokenCache;
     this.dPoPProofCreator = dPoPProofCreator;
-    try {
-      this.digest = MessageDigest.getInstance("SHA-256");
-    } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   @Override
@@ -104,6 +99,13 @@ public final class DefaultClientCredentials implements ClientCredentials {
   }
 
   private String createCacheKey(Client client, TokenRequestDetails tokenRequestDetails, Set<String> scopeSet) {
+    MessageDigest digest;
+    try {
+      digest = MessageDigest.getInstance("SHA-256");
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    }
+
     StringBuilder builder = new StringBuilder();
     builder.append(client.keyReference().getKeyId());
 
