@@ -1,10 +1,13 @@
 package no.helseid.endpoints.token;
 
+import org.jspecify.annotations.NullMarked;
+
 import java.util.Set;
 
 /**
  * A representation of a successful response from the token-endpoint in HelseID
  */
+@NullMarked
 public final class AccessTokenResponse extends TokenResponse {
   private final String accessToken;
   private final String tokenType;

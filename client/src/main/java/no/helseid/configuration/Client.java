@@ -1,6 +1,7 @@
 package no.helseid.configuration;
 
 import no.helseid.signing.KeyReference;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.Set;
 
@@ -10,5 +11,6 @@ import java.util.Set;
  * @param keyReference a key reference to
  * @param scope a set of scopes requested for the client
  */
+@NullMarked
 public record Client(String clientId, KeyReference keyReference, Set<String> scope) {
 }

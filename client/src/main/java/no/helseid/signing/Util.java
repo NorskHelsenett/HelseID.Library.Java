@@ -7,6 +7,7 @@ import com.nimbusds.jose.crypto.ECDSASigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.*;
 import no.helseid.exceptions.HelseIdException;
+import org.jspecify.annotations.NullMarked;
 
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
@@ -18,6 +19,8 @@ import static com.nimbusds.jose.jwk.Curve.*;
 /**
  * Util class for converting key reference to nimbus
  */
+
+@NullMarked
 public interface Util {
   /**
    * Internal use only
@@ -28,7 +31,7 @@ public interface Util {
    * @throws HelseIdException if the conversion is unsuccessful
    */
   static JWSSigner createJWSSignerFromKeyReference(KeyReference keyReference) throws HelseIdException {
-    if (no.helseid.signing.Algorithm.Family.RSA.contains(keyReference.getAlgorithm())) {
+    if (Algorithm.Family.RSA.contains(keyReference.getAlgorithm())) {
       return new RSASSASigner(keyReference.getPrivateKey());
     }
 

@@ -1,6 +1,7 @@
 package no.helseid.signing;
 
 import no.helseid.exceptions.HelseIdException;
+import org.jspecify.annotations.NullMarked;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -8,6 +9,7 @@ import java.security.PublicKey;
 /**
  * A reference to a key pair pinned to an algorithm and a key id
  */
+@NullMarked
 public interface KeyReference {
   /**
    * Access the private part of the currently referenced key

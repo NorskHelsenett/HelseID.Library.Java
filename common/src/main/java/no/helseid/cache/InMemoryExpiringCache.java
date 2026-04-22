@@ -1,11 +1,15 @@
 package no.helseid.cache;
 
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * An in-memory implementation of an expiring cache
  * @param <T> the class of the cached values
  */
+@NullMarked
 public class InMemoryExpiringCache<T> implements ExpiringCache<T> {
   private final ConcurrentHashMap<String, ExpiringValue<T>> cache = new ConcurrentHashMap<>();
 
@@ -21,7 +25,7 @@ public class InMemoryExpiringCache<T> implements ExpiringCache<T> {
    * @return the cached value if present, otherwise null
    */
   @Override
-  public T get(String key) {
+  public @Nullable T get(String key) {
     var expiringValue = cache.get(key);
 
     if (expiringValue == null ||expiringValue.expireAtEpochMilliseconds < System.currentTimeMillis()) {

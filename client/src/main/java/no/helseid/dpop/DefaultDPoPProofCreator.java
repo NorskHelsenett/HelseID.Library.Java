@@ -12,6 +12,8 @@ import com.nimbusds.oauth2.sdk.token.DPoPAccessToken;
 import com.nimbusds.openid.connect.sdk.Nonce;
 import no.helseid.exceptions.HelseIdException;
 import no.helseid.signing.KeyReference;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 import java.text.ParseException;
@@ -21,6 +23,7 @@ import static no.helseid.signing.Util.createJWKFromKeyReference;
 /**
  * Default implementation of a DPoPProofCreator
  */
+@NullMarked
 public class DefaultDPoPProofCreator implements DPoPProofCreator {
   private final DPoPProofFactory factory;
   private final String keyId;
@@ -78,7 +81,7 @@ public class DefaultDPoPProofCreator implements DPoPProofCreator {
    * @return string formatted DPoP-Proof
    * @throws HelseIdException if unable to create a DPoP-Proof, usually the thumbprint in the access token does not match the signing key
    */
-  private String createDPoPProof(URI htu, HttpMethod htm, String nonce, String accessToken) throws HelseIdException {
+  private String createDPoPProof(URI htu, HttpMethod htm, @Nullable String nonce,@Nullable String accessToken) throws HelseIdException {
     if (accessToken != null) {
       try {
         Base64URL accessTokenJwkThumbprint = JWKThumbprintConfirmation.parse(SignedJWT.parse(accessToken).getJWTClaimsSet()).getValue();
