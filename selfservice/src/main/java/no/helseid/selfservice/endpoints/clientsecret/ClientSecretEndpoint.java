@@ -5,6 +5,7 @@ import com.nimbusds.jose.util.JSONObjectUtils;
 import no.helseid.dpop.DPoPProofCreator;
 import no.helseid.dpop.HttpMethod;
 import no.helseid.exceptions.HelseIdException;
+import org.jspecify.annotations.NullMarked;
 
 import java.io.IOException;
 import java.net.URI;
@@ -18,6 +19,7 @@ import java.util.Map;
 /**
  * An implementation for communicating with the client secret endpoint in HelseID Self-Service
  */
+@NullMarked
 public interface ClientSecretEndpoint {
   /**
    * Upload a public json web key to  HelseID Self-Service
@@ -35,8 +37,7 @@ public interface ClientSecretEndpoint {
       JWK jwk
   ) throws HelseIdException {
     HttpResponse<String> httpResponse;
-    try {
-      HttpClient httpclient = HttpClient.newHttpClient();
+    try (HttpClient httpclient = HttpClient.newHttpClient();) {
       HttpRequest httpRequest = HttpRequest.newBuilder(endpoint)
           .POST(HttpRequest.BodyPublishers.ofString(jwk.toPublicJWK().toJSONString()))
           .header("Authorization", "DPoP " + accessToken)

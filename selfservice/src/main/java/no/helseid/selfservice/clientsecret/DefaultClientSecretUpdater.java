@@ -13,6 +13,7 @@ import no.helseid.selfservice.endpoints.clientsecret.ClientSecretSuccessResponse
 import no.helseid.signing.Algorithm;
 import no.helseid.signing.RSAKeyReference;
 import no.helseid.signing.Util;
+import org.jspecify.annotations.NullMarked;
 
 import java.net.URI;
 import java.util.Set;
@@ -21,6 +22,7 @@ import java.util.Set;
 /**
  * Default implementation of a ClientSecretUpdater
  */
+@NullMarked
 public class DefaultClientSecretUpdater implements ClientSecretUpdater {
   private final URI selfServiceClientSecretEndpoint;
   private final ClientCredentials clientCredentials;

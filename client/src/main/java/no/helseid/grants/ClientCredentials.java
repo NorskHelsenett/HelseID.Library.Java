@@ -11,12 +11,15 @@ import no.helseid.endpoints.token.TokenResponse;
 import no.helseid.exceptions.HelseIdException;
 import no.helseid.metadata.MetadataProvider;
 import no.helseid.metadata.RemoteMetadataProvider;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
 
 /**
  * Client Credentials pattern
  */
+@NullMarked
 public interface ClientCredentials {
   /**
    * Request access token from HelseID without details, the token is cached and referenced thru-out it's lifetime
@@ -31,7 +34,7 @@ public interface ClientCredentials {
    * @return the token response from HelseID, might be a AccessTokenResponse or an ErrorResponse
    * @throws HelseIdException if a request to HelseID returned in an unprocessable failure
    */
-  TokenResponse getAccessToken(TokenRequestDetails tokenRequestDetails) throws HelseIdException;
+  TokenResponse getAccessToken(@Nullable TokenRequestDetails tokenRequestDetails) throws HelseIdException;
 
   /**
    * Returning the dpop proof creator used in client credentials
@@ -44,9 +47,9 @@ public interface ClientCredentials {
    */
   class Builder {
     private final MetadataProvider metadataProvider;
-    private Client client;
-    private ExpiringCache<AccessTokenResponse> tokenCache;
-    private DPoPProofCreator dPoPProofCreator;
+    private @Nullable Client client;
+    private @Nullable ExpiringCache<AccessTokenResponse> tokenCache;
+    private @Nullable DPoPProofCreator dPoPProofCreator;
 
     /**
      * Initialize a builder class for client credentials

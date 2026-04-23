@@ -6,6 +6,7 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import no.helseid.cache.ExpiringCache;
 import no.helseid.cache.InMemoryExpiringCache;
 import no.helseid.exceptions.HelseIdException;
+import org.jspecify.annotations.NullMarked;
 
 import java.io.IOException;
 import java.net.URI;
@@ -19,6 +20,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @version 2025-08-25
  */
+@NullMarked
 public class RemoteMetadataProvider implements MetadataProvider {
   private static final Map<String, RemoteMetadataProvider> instanceMap = new ConcurrentHashMap<>();
   private static final String CACHE_KEY = "metadata";
@@ -49,13 +51,14 @@ public class RemoteMetadataProvider implements MetadataProvider {
    */
   @Override
   public OIDCProviderMetadata getMetadata() throws HelseIdException {
-    if (cache.get(CACHE_KEY) == null) {
-      var metadata = fetchMetadata();
-      cache.put(CACHE_KEY, metadata, System.currentTimeMillis() + expirationTimeInMilliseconds);
-      return metadata;
-    }
+    final var metadata = cache.get(CACHE_KEY);
+      if (metadata != null) {
+          return metadata;
+      }
+      var newMetadata = fetchMetadata();
+      cache.put(CACHE_KEY, newMetadata, System.currentTimeMillis() + expirationTimeInMilliseconds);
+      return newMetadata;
 
-    return cache.get(CACHE_KEY);
   }
 
   /**

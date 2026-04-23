@@ -1,12 +1,14 @@
 package no.helseid.dpop;
 
 import no.helseid.exceptions.HelseIdException;
+import org.jspecify.annotations.NullMarked;
 
 import java.net.URI;
 
 /**
  * Interface for creation of DPoP-proofs
  */
+@NullMarked
 public interface DPoPProofCreator {
 
   /**

@@ -1,8 +1,11 @@
 package no.helseid.endpoints.token;
 
+import org.jspecify.annotations.NullMarked;
+
 /**
  * A representation of an error response from the token-endpoint in HelseID
  */
+@NullMarked
 public final class ErrorResponse extends TokenResponse {
   private final String error;
   private final String errorDescription;

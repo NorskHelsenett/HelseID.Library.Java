@@ -7,6 +7,7 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyType;
 import com.nimbusds.jose.jwk.KeyUse;
 import no.helseid.exceptions.HelseIdException;
+import org.jspecify.annotations.NullUnmarked;
 import org.junit.jupiter.api.Test;
 
 import java.security.PrivateKey;
@@ -52,21 +53,24 @@ class UtilTest {
   void createJWKFromKeyReference_should_reject_unsupported_algorithm() throws HelseIdException {
     KeyReference invalidKeyReference = new KeyReference() {
 
+
+      @NullUnmarked
       @Override
       public PrivateKey getPrivateKey() {
         return null;
       }
 
+      @NullUnmarked
       @Override
       public PublicKey getPublicKey() {
         return null;
       }
-
+      @NullUnmarked
       @Override
       public Algorithm getAlgorithm() {
         return null;
       }
-
+      @NullUnmarked
       @Override
       public String getKeyId() {
         return "";

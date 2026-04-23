@@ -2,17 +2,20 @@ package no.helseid.endpoints.token;
 
 import no.helseid.configuration.Tenancy;
 import no.helseid.exceptions.HelseIdException;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
 /**
  * A collection of details in a token request
  */
+@NullMarked
 public final class TokenRequestDetails {
   private final Tenancy tenancy;
-  private final String parentOrganizationNumber;
-  private final String childOrganizationNumber;
-  private final String sfmJournalId;
+  private final @Nullable String parentOrganizationNumber;
+  private final @Nullable String childOrganizationNumber;
+  private final @Nullable String sfmJournalId;
   private final Set<String> scope;
 
   /**
@@ -27,9 +30,9 @@ public final class TokenRequestDetails {
    */
   public TokenRequestDetails(
       Tenancy tenancy,
-      String parentOrganizationNumber,
-      String childOrganizationNumber,
-      String sfmJournalId,
+      @Nullable String parentOrganizationNumber,
+      @Nullable String childOrganizationNumber,
+      @Nullable String sfmJournalId,
       Set<String> scope
   ) {
     this.tenancy = tenancy;
@@ -51,7 +54,7 @@ public final class TokenRequestDetails {
    * Returning the parent organization number of the request
    * @return the parent organization number of the request
    */
-  public String parentOrganizationNumber() {
+  public @Nullable String parentOrganizationNumber() {
     return parentOrganizationNumber;
   }
 
@@ -59,7 +62,7 @@ public final class TokenRequestDetails {
    * Returning the child organization number of the request
    * @return the child organization number of the request
    */
-  public String childOrganizationNumber() {
+  public @Nullable String childOrganizationNumber() {
     return childOrganizationNumber;
   }
 
@@ -67,7 +70,7 @@ public final class TokenRequestDetails {
    * Returning the SFM journal-id of the request
    * @return the SFM journal-id of the request
    */
-  public String sfmJournalId() {
+  public @Nullable String sfmJournalId() {
     return sfmJournalId;
   }
 
@@ -85,9 +88,9 @@ public final class TokenRequestDetails {
   public static class Builder {
     private final Set<String> scopeSet = new HashSet<>();
     private Tenancy tenancy = Tenancy.SINGLE_TENANT;
-    private String parentOrganizationNumber;
-    private String childOrganizationNumber;
-    private String sfmJournalId;
+    private @Nullable String parentOrganizationNumber;
+    private @Nullable String childOrganizationNumber;
+    private @Nullable String sfmJournalId;
 
     /**
      * Create a new Builder instance for TokenRequestDetails

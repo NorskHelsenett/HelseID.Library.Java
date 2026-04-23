@@ -1,11 +1,15 @@
 package no.helseid.cache;
 
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+
 /**
  * Caching interface used by HelseID internals
  * May be implemended to provide distributed caching or interactions with a custom cache
  *
  * @param <T> the class of the cached values
  */
+@NullMarked
 public interface ExpiringCache<T> {
   /**
    * Get the cached value on a key, an expired value is interpreted as missing
@@ -13,7 +17,7 @@ public interface ExpiringCache<T> {
    * @param key the key a value is cached on
    * @return cached value, null if missing or expired
    */
-  T get(String key);
+  @Nullable T get(String key);
 
 
   /**
