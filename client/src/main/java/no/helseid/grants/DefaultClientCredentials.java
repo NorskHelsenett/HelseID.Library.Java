@@ -15,6 +15,8 @@ import no.helseid.endpoints.token.TokenRequestDetails;
 import no.helseid.endpoints.token.TokenResponse;
 import no.helseid.exceptions.HelseIdException;
 import no.helseid.metadata.MetadataProvider;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -26,6 +28,7 @@ import java.util.Set;
 /**
  * Default implementation of Client Credentials
  */
+@NullMarked
 public final class DefaultClientCredentials implements ClientCredentials {
   private final Client client;
   private final MetadataProvider metadataProvider;
@@ -61,7 +64,7 @@ public final class DefaultClientCredentials implements ClientCredentials {
   }
 
   @Override
-  public TokenResponse getAccessToken(TokenRequestDetails tokenRequestDetails) throws HelseIdException {
+  public TokenResponse getAccessToken(@Nullable TokenRequestDetails tokenRequestDetails) throws HelseIdException {
     var metadata = metadataProvider.getMetadata();
     var scopeSet = getCurrentScope(client, tokenRequestDetails);
 
@@ -98,7 +101,7 @@ public final class DefaultClientCredentials implements ClientCredentials {
     return tokenResponse;
   }
 
-  private String createCacheKey(Client client, TokenRequestDetails tokenRequestDetails, Set<String> scopeSet) {
+  private String createCacheKey(Client client, @Nullable TokenRequestDetails tokenRequestDetails, @Nullable Set<String> scopeSet) {
     MessageDigest digest;
     try {
       digest = MessageDigest.getInstance("SHA-256");
@@ -129,7 +132,7 @@ public final class DefaultClientCredentials implements ClientCredentials {
     return new String(digest.digest(builder.toString().getBytes()));
   }
 
-  private Set<String> getCurrentScope(Client client, TokenRequestDetails tokenRequestDetails) {
+  private Set<String> getCurrentScope(Client client, @Nullable TokenRequestDetails tokenRequestDetails) {
     if (tokenRequestDetails == null || tokenRequestDetails.scope().isEmpty()) {
       return client.scope();
     }
