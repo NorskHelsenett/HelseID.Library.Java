@@ -4,6 +4,7 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.AuthorizationGrant;
 import com.nimbusds.oauth2.sdk.ClientCredentialsGrant;
 import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.http.HTTPRequestSender;
 import no.helseid.cache.ExpiringCache;
 import no.helseid.clientassertion.AssertionDetails;
 import no.helseid.clientassertion.ClientAssertion;
@@ -35,6 +36,7 @@ public final class DefaultClientCredentials implements ClientCredentials {
   private final MetadataProvider metadataProvider;
   private final ExpiringCache<AccessTokenResponse> tokenCache;
   private final DPoPProofCreator dPoPProofCreator;
+  private final HTTPRequestSender httpRequestSender;
 
   /**
    * @param client the client preforming the client credentials flow
@@ -46,12 +48,14 @@ public final class DefaultClientCredentials implements ClientCredentials {
       Client client,
       MetadataProvider metadataProvider,
       ExpiringCache<AccessTokenResponse> tokenCache,
-      DPoPProofCreator dPoPProofCreator
+      DPoPProofCreator dPoPProofCreator,
+      HTTPRequestSender httpRequestSender
   ) {
     this.client = client;
     this.metadataProvider = metadataProvider;
     this.tokenCache = tokenCache;
     this.dPoPProofCreator = dPoPProofCreator;
+    this.httpRequestSender = httpRequestSender;
   }
 
   @Override
@@ -85,6 +89,7 @@ public final class DefaultClientCredentials implements ClientCredentials {
     );
 
     TokenResponse tokenResponse = TokenEndpoint.sendRequest(
+        httpRequestSender,
         metadata.getTokenEndpointURI(),
         dPoPProofCreator,
         clientAssertionSupplier,

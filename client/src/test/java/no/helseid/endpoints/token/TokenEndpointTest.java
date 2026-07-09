@@ -10,17 +10,22 @@ import no.helseid.configuration.Client;
 import no.helseid.dpop.DPoPProofCreator;
 import no.helseid.dpop.DefaultDPoPProofCreator;
 import no.helseid.exceptions.HelseIdException;
+import no.helseid.http.HelseIdHttpSender;
 import no.helseid.signing.Algorithm;
 import no.helseid.signing.RSAKeyReference;
 import no.helseid.testutil.WireMockUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
 import java.net.URI;
+import java.net.http.HttpClient;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static no.helseid.testutil.WireMockUtils.TOKEN_ENDPOINT_PATH;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,11 +34,13 @@ class TokenEndpointTest {
   private static final Set<String> SCOPE = Collections.singleton("nhn:helseid/test");
 
   private WireMockServer wms;
+  private HelseIdHttpSender httpSender;
 
   @BeforeEach
   void setup() {
     wms = new WireMockServer(WireMockConfiguration.options().dynamicPort());
     wms.start();
+    httpSender = new HelseIdHttpSender();
   }
 
   @Test
@@ -48,6 +55,7 @@ class TokenEndpointTest {
 
 
     TokenResponse tokenResponse = TokenEndpoint.sendRequest(
+        httpSender,
         URI.create(wms.baseUrl() + TOKEN_ENDPOINT_PATH),
         dpopProofCreator,
         ClientAssertion.createClientAssertionSupplier("helseid", client),
@@ -70,8 +78,8 @@ class TokenEndpointTest {
     var client = new Client("client-id", keyReference, SCOPE);
     var dPoPNonce = new Nonce().getValue();
     var badJsonBody = """
-    {"hello":"world}
-    """;
+        {"hello":"world}
+        """;
 
     DPoPProofCreator dpopProofCreator = new DefaultDPoPProofCreator(client.keyReference());
     WireMockUtils.stub_token_with_use_dpop_nonce_response(wms, dPoPNonce);
@@ -79,6 +87,7 @@ class TokenEndpointTest {
 
     try {
       TokenEndpoint.sendRequest(
+          httpSender,
           URI.create(wms.baseUrl() + TOKEN_ENDPOINT_PATH),
           dpopProofCreator,
           ClientAssertion.createClientAssertionSupplier("helseid", client),
@@ -104,6 +113,7 @@ class TokenEndpointTest {
 
     try {
       TokenEndpoint.sendRequest(
+          httpSender,
           URI.create(wms.baseUrl() + TOKEN_ENDPOINT_PATH),
           dpopProofCreator,
           ClientAssertion.createClientAssertionSupplier("helseid", client),
@@ -128,6 +138,7 @@ class TokenEndpointTest {
 
 
     TokenResponse tokenResponse = TokenEndpoint.sendRequest(
+        httpSender,
         URI.create(wms.baseUrl() + TOKEN_ENDPOINT_PATH),
         dpopProofCreator,
         ClientAssertion.createClientAssertionSupplier("helseid", client),
@@ -140,5 +151,50 @@ class TokenEndpointTest {
 
     ErrorResponse errorResponse = (ErrorResponse) tokenResponse;
     assertEquals(418, errorResponse.statusCode());
+  }
+
+  @Test
+  public void should_honor_provided_http_client_with_proxy() throws HelseIdException {
+    // Create the forward proxy
+    WireMockServer proxyServer = new WireMockServer(WireMockConfiguration.options().dynamicPort().enableBrowserProxying(true));
+    proxyServer.start();
+
+    // Create a custom client using the proxy
+    HttpClient proxiedHttpClient = HttpClient.newBuilder()
+        .version(HttpClient.Version.HTTP_1_1)
+        .proxy(ProxySelector.of(new InetSocketAddress("localhost", proxyServer.port())))
+        .build();
+
+    var keyReference = RSAKeyReference.generate(Algorithm.PS512);
+    var client = new Client("client-id", keyReference, SCOPE);
+    var dPoPNonce = new Nonce().getValue();
+
+    DPoPProofCreator dpopProofCreator = new DefaultDPoPProofCreator(client.keyReference());
+    WireMockUtils.stub_token_with_use_dpop_nonce_response(wms, dPoPNonce);
+    WireMockUtils.stub_token_matching_dpop_nonce_returning_mock_access_token(wms, dPoPNonce, MOCK_ACCESS_TOKEN, null);
+
+    TokenResponse tokenResponse = TokenEndpoint.sendRequest(
+        new HelseIdHttpSender(proxiedHttpClient),
+        URI.create(wms.baseUrl() + TOKEN_ENDPOINT_PATH),
+        dpopProofCreator,
+        ClientAssertion.createClientAssertionSupplier("helseid", client),
+        new ClientCredentialsGrant(),
+        Scope.parse(SCOPE),
+        Collections.singletonList(URI.create("nhn:helseid")),
+        Map.of("mykey", Collections.singletonList("myval"))
+    );
+
+    assertInstanceOf(AccessTokenResponse.class, tokenResponse);
+
+    AccessTokenResponse accessTokenResponse = (AccessTokenResponse) tokenResponse;
+    assertEquals(MOCK_ACCESS_TOKEN, accessTokenResponse.accessToken());
+
+    // Verify the request was proxied
+    proxyServer.verify(2, postRequestedFor(urlPathEqualTo(TOKEN_ENDPOINT_PATH))
+        .withHost(equalTo("localhost")));
+
+    // Verify the request reached the STS
+    wms.verify(2, postRequestedFor(urlPathEqualTo(TOKEN_ENDPOINT_PATH))
+        .withHost(equalTo("localhost")));
   }
 }

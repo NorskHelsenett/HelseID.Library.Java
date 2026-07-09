@@ -4,6 +4,7 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.*;
 import com.nimbusds.oauth2.sdk.auth.PrivateKeyJWT;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
+import com.nimbusds.oauth2.sdk.http.HTTPRequestSender;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.AccessTokenType;
 import com.nimbusds.oauth2.sdk.token.DPoPAccessToken;
@@ -25,6 +26,7 @@ public interface TokenEndpoint {
 
   /**
    * Sends a request to a token endpoint
+   * @param httpRequestSender the http sender for the request
    * @param tokenEndpointURI the token endpoint
    * @param dpopProofCreator a DPoP-proof creator
    * @param clientAssertionSupplier a supplier function for creating client assertion
@@ -36,6 +38,7 @@ public interface TokenEndpoint {
    * @throws HelseIdException if an error occurs not representable by an ErrorResponse
    */
   static TokenResponse sendRequest(
+      HTTPRequestSender httpRequestSender,
       URI tokenEndpointURI,
       DPoPProofCreator dpopProofCreator,
       Supplier<SignedJWT> clientAssertionSupplier,
@@ -54,7 +57,7 @@ public interface TokenEndpoint {
         null,
         customParams
     );
-    HTTPResponse httpResponseWithoutIncludingDPoPNonceResponseHeader = sendTokenRequest(primaryRequest, dpopProofCreator, null);
+    HTTPResponse httpResponseWithoutIncludingDPoPNonceResponseHeader = sendTokenRequest(httpRequestSender, primaryRequest, dpopProofCreator, null);
     com.nimbusds.oauth2.sdk.TokenResponse initialTokenResponse = parseTokenResponse(httpResponseWithoutIncludingDPoPNonceResponseHeader);
 
     // Should not happen because of DPoP
@@ -83,7 +86,7 @@ public interface TokenEndpoint {
         null,
         customParams
     );
-    HTTPResponse httpResponse = sendTokenRequest(secondaryRequest, dpopProofCreator, dPoPNonce.getValue());
+    HTTPResponse httpResponse = sendTokenRequest(httpRequestSender, secondaryRequest, dpopProofCreator, dPoPNonce.getValue());
     com.nimbusds.oauth2.sdk.TokenResponse dPoPTokenResponse = parseTokenResponse(httpResponse);
 
     if (dPoPTokenResponse.indicatesSuccess()) {
@@ -128,13 +131,14 @@ public interface TokenEndpoint {
 
   /**
    * Internal util class for sending token request and handle exception during the process
+   * @param httpRequestSender the http sender for the request
    * @param tokenRequest a token request object
    * @param dPoPProofCreator a DPoP-proof creator
    * @param dPoPNonce an optional DPoP-Nonce
    * @return a nimbus HTTP Response
    * @throws HelseIdException if the request is not sent off or the response is not processable
    */
-  private static HTTPResponse sendTokenRequest(TokenRequest tokenRequest, DPoPProofCreator dPoPProofCreator, String dPoPNonce) throws HelseIdException {
+  private static HTTPResponse sendTokenRequest(HTTPRequestSender httpRequestSender, TokenRequest tokenRequest, DPoPProofCreator dPoPProofCreator, String dPoPNonce) throws HelseIdException {
     HTTPRequest httpRequest = tokenRequest.toHTTPRequest();
     var htu = httpRequest.getURI();
     var htm = httpRequest.getMethod();
@@ -142,7 +146,7 @@ public interface TokenEndpoint {
     httpRequest.setHeader("DPoP", dPoPProof);
 
     try {
-      return httpRequest.send();
+      return httpRequest.send(httpRequestSender);
     } catch (IOException e) {
       throw new HelseIdException("Error occurred sending the request", e);
     }
