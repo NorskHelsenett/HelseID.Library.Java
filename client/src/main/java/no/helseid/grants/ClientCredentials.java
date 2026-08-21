@@ -9,12 +9,14 @@ import no.helseid.endpoints.token.AccessTokenResponse;
 import no.helseid.endpoints.token.TokenRequestDetails;
 import no.helseid.endpoints.token.TokenResponse;
 import no.helseid.exceptions.HelseIdException;
+import no.helseid.http.HelseIdHttpSender;
 import no.helseid.metadata.MetadataProvider;
 import no.helseid.metadata.RemoteMetadataProvider;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 import java.net.URI;
+import java.net.http.HttpClient;
 
 /**
  * Client Credentials pattern
@@ -50,6 +52,7 @@ public interface ClientCredentials {
     private @Nullable Client client;
     private @Nullable ExpiringCache<AccessTokenResponse> tokenCache;
     private @Nullable DPoPProofCreator dPoPProofCreator;
+    private @Nullable HttpClient httpClient;
 
     /**
      * Initialize a builder class for client credentials
@@ -90,6 +93,16 @@ public interface ClientCredentials {
     }
 
     /**
+     * Assign a custom HttpClient, preconfigured with eventual proxies or so
+     * @param httpClient a custom HttpClient
+     * @return the current builder
+     */
+    public Builder setCustomHttpClient(final HttpClient httpClient) {
+      this.httpClient = httpClient;
+      return this;
+    }
+
+    /**
      * Build the client credentials
      * @return a default implementation of client credentials
      * @throws HelseIdException if misconfigured
@@ -107,11 +120,18 @@ public interface ClientCredentials {
         this.dPoPProofCreator = new DefaultDPoPProofCreator(client.keyReference());
       }
 
+      if (httpClient == null) {
+        httpClient = HttpClient.newBuilder()
+            .version(HttpClient.Version.HTTP_1_1)
+            .build();
+      }
+
       return new DefaultClientCredentials(
           this.client,
           this.metadataProvider,
           this.tokenCache,
-          this.dPoPProofCreator
+          this.dPoPProofCreator,
+          new HelseIdHttpSender(this.httpClient)
       );
     }
   }

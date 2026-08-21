@@ -23,10 +23,11 @@ import java.util.Map;
 public interface ClientSecretEndpoint {
   /**
    * Upload a public json web key to  HelseID Self-Service
-   * @param endpoint the endpoint
+   *
+   * @param endpoint         the endpoint
    * @param dPoPProofCreator a dpop proof creator
-   * @param accessToken an access token bound to the private key in the dpop proof creator
-   * @param jwk a private jwk
+   * @param accessToken      an access token bound to the private key in the dpop proof creator
+   * @param jwk              a private jwk
    * @return the result of an upload
    * @throws HelseIdException if a request was unable to send or response was unparsable
    */

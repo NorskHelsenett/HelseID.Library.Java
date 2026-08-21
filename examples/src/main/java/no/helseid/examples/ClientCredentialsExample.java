@@ -1,18 +1,21 @@
 package no.helseid.examples;
 
-import no.helseid.endpoints.token.TokenRequestDetails;
 import no.helseid.configuration.Client;
 import no.helseid.dpop.DPoPProofCreator;
 import no.helseid.dpop.DefaultDPoPProofCreator;
 import no.helseid.dpop.HttpMethod;
 import no.helseid.endpoints.token.AccessTokenResponse;
 import no.helseid.endpoints.token.ErrorResponse;
+import no.helseid.endpoints.token.TokenRequestDetails;
 import no.helseid.endpoints.token.TokenResponse;
 import no.helseid.exceptions.HelseIdException;
 import no.helseid.grants.ClientCredentials;
 import no.helseid.signing.JWKKeyReference;
 
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Set;
 
@@ -24,10 +27,13 @@ public class ClientCredentialsExample {
   public static void main(String[] args) throws HelseIdException {
     Client client = new Client(CLIENT_ID, JWKKeyReference.parse(JWK), SCOPE);
 
+    HttpClient myCustomHttpClient = HttpClient.newBuilder().connectTimeout(Duration.of(1, ChronoUnit.SECONDS)).build();
+
     DPoPProofCreator dPoPProofCreator = new DefaultDPoPProofCreator(client.keyReference());
 
     ClientCredentials clientCredentials = new ClientCredentials.Builder(AUTHORITY)
         .withClient(client)
+        .setCustomHttpClient(myCustomHttpClient)
         .setCustomDPoPProofCreator(dPoPProofCreator)
         .build();
 
