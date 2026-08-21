@@ -24,6 +24,7 @@ import java.time.Instant;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * Default implementation of Client Credentials
@@ -77,7 +78,7 @@ public final class DefaultClientCredentials implements ClientCredentials {
     }
 
     AuthorizationGrant clientGrant = new ClientCredentialsGrant();
-    SignedJWT clientAssertion = ClientAssertion.createClientAssertionSignedJWT(
+    Supplier<SignedJWT> clientAssertionSupplier = ClientAssertion.createClientAssertionSupplier(
         metadata.getIssuer().getValue(),
         client,
         tokenRequestDetails == null ? null : AssertionDetails.fromTokenRequestDetails(tokenRequestDetails)
@@ -86,7 +87,7 @@ public final class DefaultClientCredentials implements ClientCredentials {
     TokenResponse tokenResponse = TokenEndpoint.sendRequest(
         metadata.getTokenEndpointURI(),
         dPoPProofCreator,
-        clientAssertion,
+        clientAssertionSupplier,
         clientGrant,
         Scope.parse(client.scope()),
         Collections.emptyList(),

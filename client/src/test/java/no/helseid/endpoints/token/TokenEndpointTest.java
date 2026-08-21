@@ -50,7 +50,7 @@ class TokenEndpointTest {
     TokenResponse tokenResponse = TokenEndpoint.sendRequest(
         URI.create(wms.baseUrl() + TOKEN_ENDPOINT_PATH),
         dpopProofCreator,
-        ClientAssertion.createClientAssertionSignedJWT("helseid", client),
+        ClientAssertion.createClientAssertionSupplier("helseid", client),
         new ClientCredentialsGrant(),
         Scope.parse(SCOPE),
         Collections.singletonList(URI.create("nhn:helseid")),
@@ -81,7 +81,7 @@ class TokenEndpointTest {
       TokenEndpoint.sendRequest(
           URI.create(wms.baseUrl() + TOKEN_ENDPOINT_PATH),
           dpopProofCreator,
-          ClientAssertion.createClientAssertionSignedJWT("helseid", client),
+          ClientAssertion.createClientAssertionSupplier("helseid", client),
           new ClientCredentialsGrant(),
           Scope.parse(SCOPE),
           null,
@@ -106,7 +106,7 @@ class TokenEndpointTest {
       TokenEndpoint.sendRequest(
           URI.create(wms.baseUrl() + TOKEN_ENDPOINT_PATH),
           dpopProofCreator,
-          ClientAssertion.createClientAssertionSignedJWT("helseid", client),
+          ClientAssertion.createClientAssertionSupplier("helseid", client),
           new ClientCredentialsGrant(),
           Scope.parse(SCOPE),
           null,
@@ -130,7 +130,7 @@ class TokenEndpointTest {
     TokenResponse tokenResponse = TokenEndpoint.sendRequest(
         URI.create(wms.baseUrl() + TOKEN_ENDPOINT_PATH),
         dpopProofCreator,
-        ClientAssertion.createClientAssertionSignedJWT("helseid", client),
+        ClientAssertion.createClientAssertionSupplier("helseid", client),
         new ClientCredentialsGrant(),
         Scope.parse(SCOPE),
         null,
