@@ -1,10 +1,12 @@
 package no.helseid.selfservice.clientsecret;
 
 import no.helseid.exceptions.HelseIdException;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * An interface for updating client secrets in HelseID Self-Service
  */
+@NullMarked
 public interface ClientSecretUpdater {
   /**
    * Generates a new key reference and uploads it to HelseID Self-Service
