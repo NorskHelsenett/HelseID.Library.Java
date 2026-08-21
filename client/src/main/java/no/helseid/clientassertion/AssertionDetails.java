@@ -3,6 +3,7 @@ package no.helseid.clientassertion;
 import no.helseid.configuration.Tenancy;
 import no.helseid.endpoints.token.TokenRequestDetails;
 import no.helseid.exceptions.HelseIdException;
+import org.jspecify.annotations.NullMarked;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.Map;
 /**
  * Utility class for creating the assertion details
  */
+@NullMarked
 public abstract class AssertionDetails {
 
   /**
