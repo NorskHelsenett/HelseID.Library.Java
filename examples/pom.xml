@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.helseid</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.3</version>
     </parent>
 
     <artifactId>examples</artifactId>
@@ -20,13 +20,13 @@
         <dependency>
             <groupId>no.helseid</groupId>
             <artifactId>client</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.3</version>
         </dependency>
 
         <dependency>
             <groupId>no.helseid</groupId>
             <artifactId>selfservice</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.3</version>
         </dependency>
     </dependencies>
 </project>
