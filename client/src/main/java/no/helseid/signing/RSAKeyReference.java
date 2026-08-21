@@ -1,6 +1,7 @@
 package no.helseid.signing;
 
 import no.helseid.exceptions.HelseIdException;
+import org.jspecify.annotations.NullMarked;
 
 import java.security.*;
 import java.util.UUID;
@@ -8,6 +9,7 @@ import java.util.UUID;
 /**
  * A Key reference to an RSA key
  */
+@NullMarked
 public final class RSAKeyReference implements KeyReference {
   private static final String ALGORITHM = "RSA";
   private static final int DEFAULT_KEY_SIZE = 4096;
@@ -51,13 +53,21 @@ public final class RSAKeyReference implements KeyReference {
   }
 
   @Override
-  public PrivateKey getPrivateKey() {
-    return keyPair.getPrivate();
+  public  PrivateKey getPrivateKey() throws HelseIdException {
+    var privateKey = keyPair.getPrivate();
+    if (privateKey == null) {
+      throw new HelseIdException("Missing privateKey in keypair");
+    }
+    return privateKey;
   }
 
   @Override
-  public PublicKey getPublicKey() {
-    return keyPair.getPublic();
+  public PublicKey getPublicKey() throws HelseIdException {
+    var publicKey = keyPair.getPublic();
+    if (publicKey == null) {
+      throw new HelseIdException("Missing publicKey in keypair");
+    }
+    return publicKey;
   }
 
   @Override

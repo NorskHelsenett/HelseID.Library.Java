@@ -1,8 +1,11 @@
 package no.helseid.exceptions;
 
+import org.jspecify.annotations.NullMarked;
+
 /**
  * Generic Exception wrapping exceptions occuring in this library
  */
+@NullMarked
 public class HelseIdException extends Exception {
   /**
    * Create an exception with no external cause
