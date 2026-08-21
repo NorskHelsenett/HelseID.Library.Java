@@ -1,8 +1,11 @@
 package no.helseid.dpop;
 
+import org.jspecify.annotations.NullMarked;
+
 /**
  * Representation of HTTP Methods
  */
+@NullMarked
 public final class HttpMethod {
   /**
    * GET method <a href="https://datatracker.ietf.org/doc/html/rfc7231#section-4.3.1">as described in RFC 7231</a>

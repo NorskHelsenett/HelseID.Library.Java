@@ -12,6 +12,7 @@ import no.helseid.selfservice.endpoints.clientsecret.ClientSecretSuccessResponse
 import no.helseid.signing.Algorithm;
 import no.helseid.signing.RSAKeyReference;
 import no.helseid.signing.Util;
+import org.jspecify.annotations.NullMarked;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,17 +27,18 @@ class ClientSecretEndpointTest {
   private static String CLIENT_SECRET_PATH = "/v1/client-secret";
   private WireMockServer wms;
 
-  private final DPoPProofCreator dPoPProofCreator = new DPoPProofCreator() {
+
+  private final DPoPProofCreator dPoPProofCreator = new DPoPProofCreator() {@NullMarked
     @Override
     public String createDPoPProofWithNonce(URI htu, HttpMethod htm, String nonce) {
       throw new RuntimeException("Not implemented");
     }
-
+    @NullMarked
     @Override
     public String createDPoPProof(URI htu, HttpMethod htm, String accessToken) {
       return "my.dpop.proof";
     }
-
+    @NullMarked
     @Override
     public String getKeyId() {
       return "my-key-id";
