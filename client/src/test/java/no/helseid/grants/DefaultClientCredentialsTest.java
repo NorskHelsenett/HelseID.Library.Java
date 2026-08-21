@@ -2,11 +2,13 @@ package no.helseid.grants;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+import com.nimbusds.jwt.SignedJWT;
 import no.helseid.cache.InMemoryExpiringCache;
 import no.helseid.configuration.Client;
 import no.helseid.dpop.DefaultDPoPProofCreator;
@@ -23,6 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
+import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -138,6 +141,38 @@ class DefaultClientCredentialsTest {
     } else if (tokenResponseFirst instanceof ErrorResponse errorResponse) {
       fail(errorResponse.rawResponseBody());
     }
+  }
+
+
+  @Test
+  void ClientCredentials_should_not_reuse_client_assertion() throws HelseIdException, ParseException {
+    // Providing metadata for the test
+    WireMockUtils.stub_metadata_with_base_url(wms);
+
+    // Expected failure with a DPoP proof without nonce
+    WireMockUtils.stub_token_with_use_dpop_nonce_response(wms, DPOP_NONCE);
+
+    // Expected result with a DPoP proof containing expected nonce
+    WireMockUtils.stub_token_matching_dpop_nonce_returning_mock_access_token(wms, DPOP_NONCE, MOCK_ACCESS_TOKEN, SCOPE);
+
+    Client client = new Client("client-id", KEY_REFERENCE, SCOPE);
+    ClientCredentials clientCredentials = new ClientCredentials.Builder(URI.create(wms.baseUrl())).withClient(client).build();
+    clientCredentials.getAccessToken();
+
+    List<ServeEvent> events = wms.getAllServeEvents()
+        .stream()
+        .filter(e -> e.getRequest().getUrl().equals("/connect/token"))
+        .sorted(Comparator.comparing(e -> e.getRequest().getLoggedDate()))
+        .toList();
+
+    assertEquals(2, events.size());
+
+    var firstClientAssertion = SignedJWT.parse(events.get(0).getRequest().formParameter("client_assertion").firstValue());
+    var firstClientAssertionJwtId = firstClientAssertion.getJWTClaimsSet().getJWTID();
+    var secondClientAssertion = SignedJWT.parse(events.get(1).getRequest().formParameter("client_assertion").firstValue());
+    var secondClientAssertionJwtId = secondClientAssertion.getJWTClaimsSet().getJWTID();
+
+    assertNotEquals(firstClientAssertionJwtId, secondClientAssertionJwtId);
   }
 
   @Test

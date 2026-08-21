@@ -10,8 +10,10 @@ import com.nimbusds.oauth2.sdk.id.JWTID;
 import no.helseid.configuration.Client;
 import no.helseid.endpoints.token.TokenRequestDetails;
 import no.helseid.exceptions.HelseIdException;
+import no.helseid.exceptions.HelseIdRuntimeException;
 
 import java.util.Date;
+import java.util.function.Supplier;
 
 import static com.nimbusds.oauth2.sdk.dpop.DPoPProofFactory.MINIMAL_JTI_BYTE_LENGTH;
 import static no.helseid.signing.Util.createJWSSignerFromKeyReference;
@@ -33,6 +35,36 @@ public interface ClientAssertion {
    * The JWT type of client authentication
    */
   JOSEObjectType CLIENT_AUTHENTICATION_JWT = new JOSEObjectType("client-authentication+jwt");
+
+  /**
+   * Creates a supplier for signed client assertion representing the client with assertion details
+   *
+   * @param audience the audience for the client assertion jwt
+   * @param client   the relevant client
+   * @param assertionDetails Containing the requested assertion details
+   * @return A supplier of signed client assertion
+   */
+  static Supplier<SignedJWT> createClientAssertionSupplier(String audience, Client client, Object assertionDetails) {
+    return () -> {
+      try {
+        return createClientAssertionSignedJWT(audience, client, assertionDetails);
+      } catch (HelseIdException e) {
+        throw new HelseIdRuntimeException("An error occurred while creating a client assertion", e);
+      }
+    };
+  }
+
+  /**
+   * Creates a supplier for signed client assertion representing the client without assertion details
+   *
+   * @param audience the audience for the client assertion jwt
+   * @param client   the relevant client
+   * @return A supplier of signed client assertion
+   */
+  static Supplier<SignedJWT> createClientAssertionSupplier(String audience, Client client) {
+    return createClientAssertionSupplier(audience, client, null);
+  }
+
 
   /**
    * Creates a signed client assertion representing the client without assertion details

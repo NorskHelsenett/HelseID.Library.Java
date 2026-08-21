@@ -16,6 +16,7 @@ import no.helseid.exceptions.HelseIdException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * A util for performing requests to the token endpoint
@@ -26,7 +27,7 @@ public interface TokenEndpoint {
    * Sends a request to a token endpoint
    * @param tokenEndpointURI the token endpoint
    * @param dpopProofCreator a DPoP-proof creator
-   * @param clientAssertion a client assertion
+   * @param clientAssertionSupplier a supplier function for creating client assertion
    * @param grantType the grant requested
    * @param scope all scopes requested
    * @param resources resource indicators for the token
@@ -37,14 +38,15 @@ public interface TokenEndpoint {
   static TokenResponse sendRequest(
       URI tokenEndpointURI,
       DPoPProofCreator dpopProofCreator,
-      SignedJWT clientAssertion,
+      Supplier<SignedJWT> clientAssertionSupplier,
       AuthorizationGrant grantType,
       Scope scope,
       List<URI> resources,
       Map<String, List<String>> customParams) throws HelseIdException {
-    TokenRequest request = new TokenRequest(
+
+    TokenRequest primaryRequest = new TokenRequest(
         tokenEndpointURI,
-        new PrivateKeyJWT(clientAssertion),
+        new PrivateKeyJWT(clientAssertionSupplier.get()),
         grantType,
         scope,
         null,
@@ -52,7 +54,7 @@ public interface TokenEndpoint {
         null,
         customParams
     );
-    HTTPResponse httpResponseWithoutIncludingDPoPNonceResponseHeader = sendTokenRequest(request, dpopProofCreator, null);
+    HTTPResponse httpResponseWithoutIncludingDPoPNonceResponseHeader = sendTokenRequest(primaryRequest, dpopProofCreator, null);
     com.nimbusds.oauth2.sdk.TokenResponse initialTokenResponse = parseTokenResponse(httpResponseWithoutIncludingDPoPNonceResponseHeader);
 
     // Should not happen because of DPoP
@@ -71,7 +73,17 @@ public interface TokenEndpoint {
       throw new HelseIdException("Response indicating missing nonce but none was provided.");
     }
 
-    HTTPResponse httpResponse = sendTokenRequest(request, dpopProofCreator, dPoPNonce.getValue());
+    TokenRequest secondaryRequest = new TokenRequest(
+        tokenEndpointURI,
+        new PrivateKeyJWT(clientAssertionSupplier.get()),
+        grantType,
+        scope,
+        null,
+        resources,
+        null,
+        customParams
+    );
+    HTTPResponse httpResponse = sendTokenRequest(secondaryRequest, dpopProofCreator, dPoPNonce.getValue());
     com.nimbusds.oauth2.sdk.TokenResponse dPoPTokenResponse = parseTokenResponse(httpResponse);
 
     if (dPoPTokenResponse.indicatesSuccess()) {
