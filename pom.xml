@@ -4,7 +4,7 @@
     <groupId>no.helseid</groupId>
     <artifactId>parent</artifactId>
 
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <url>https://helseid.no</url>
     <packaging>pom</packaging>
     <organization>

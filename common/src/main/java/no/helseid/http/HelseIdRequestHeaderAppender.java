@@ -7,7 +7,7 @@ import java.net.http.HttpRequest;
  */
 public class HelseIdRequestHeaderAppender {
   private static final String LIBRARY_HEADER_NAME = "hesleid-lib-version";
-  private static final String LIBRARY_HEADER_VALUE = "1.0.2";
+  private static final String LIBRARY_HEADER_VALUE = "1.0.3";
 
   /**
    * Hides constructor on a static class
