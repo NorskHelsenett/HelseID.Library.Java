@@ -1,9 +1,10 @@
 package no.helseid.dpop;
 
-import no.helseid.exceptions.HelseIdException;
+import org.jspecify.annotations.NullMarked;
 
 import java.net.URI;
 
+@NullMarked
 public class MockDPoPProofCreator implements DPoPProofCreator {
   public final String value;
   public final String keyId;

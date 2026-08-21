@@ -1,8 +1,11 @@
 package no.helseid.endpoints.token;
 
+import org.jspecify.annotations.NullMarked;
+
 /**
  * A generic representation of a response from the token endpoint in HelseID
  */
+@NullMarked
 public abstract class TokenResponse {
   private final String rawResponseBody;
   private final int statusCode;

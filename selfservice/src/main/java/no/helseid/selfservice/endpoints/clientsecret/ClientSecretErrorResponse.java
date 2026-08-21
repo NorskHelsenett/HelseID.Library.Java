@@ -1,8 +1,11 @@
 package no.helseid.selfservice.endpoints.clientsecret;
 
+import org.jspecify.annotations.NullMarked;
+
 /**
  * A representation of a failed client secret update
  */
+@NullMarked
 public final class ClientSecretErrorResponse extends ClientSecretResponse  {
   private final String type;
   private final String title;

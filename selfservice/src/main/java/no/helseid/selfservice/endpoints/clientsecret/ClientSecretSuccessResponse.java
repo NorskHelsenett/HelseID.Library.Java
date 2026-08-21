@@ -1,10 +1,13 @@
 package no.helseid.selfservice.endpoints.clientsecret;
 
+import org.jspecify.annotations.NullMarked;
+
 import java.time.ZonedDateTime;
 
 /**
  * A representation of a successful update of a client secret
  */
+@NullMarked
 public class ClientSecretSuccessResponse extends ClientSecretResponse {
   private final ZonedDateTime expiration;
 

@@ -4,6 +4,8 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.KeyType;
 import no.helseid.exceptions.HelseIdException;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -13,6 +15,7 @@ import java.util.UUID;
 /**
  * A key reference to a JWK
  */
+@NullMarked
 public final class JWKKeyReference implements KeyReference {
   private final JWK jwk;
   private final Algorithm algorithm;
@@ -25,7 +28,7 @@ public final class JWKKeyReference implements KeyReference {
    * @param algorithm the elliptic curve algorithm
    * @param keyId     the id of the key, a random id is generated if missing
    */
-  public JWKKeyReference(JWK jwk, Algorithm algorithm, String keyId) {
+  public JWKKeyReference(JWK jwk, Algorithm algorithm, @Nullable String keyId) {
     this.jwk = jwk;
     this.algorithm = algorithm;
     this.keyId = keyId == null ? UUID.randomUUID().toString() : keyId;
