@@ -24,11 +24,10 @@ public class SelfServiceClientSecretRotationExample {
         .withClient(initialClient)
         .build();
 
-    ClientSecretUpdater clientSecretUpdater = new DefaultClientSecretUpdater(
-        SELF_SERVICE_ENDPOINT,
-        initialClientCredentials,
-        SCOPE
-    );
+    ClientSecretUpdater clientSecretUpdater = new ClientSecretUpdater.Builder(SELF_SERVICE_ENDPOINT)
+        .withClientCredentials(initialClientCredentials)
+        .addScopes(SCOPE)
+        .build();
 
     // ALTERNATIVE 1:
     // Generates a new client secret and treats a failure as exception

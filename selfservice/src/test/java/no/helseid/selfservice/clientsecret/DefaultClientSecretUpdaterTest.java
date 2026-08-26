@@ -1,4 +1,4 @@
-package no.helseid.selfservice;
+package no.helseid.selfservice.clientsecret;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -11,10 +11,6 @@ import no.helseid.endpoints.token.ErrorResponse;
 import no.helseid.endpoints.token.TokenResponse;
 import no.helseid.exceptions.HelseIdException;
 import no.helseid.grants.ClientCredentials;
-import no.helseid.selfservice.clientsecret.DefaultClientSecretUpdater;
-import no.helseid.selfservice.clientsecret.UpdatedClientSecretError;
-import no.helseid.selfservice.clientsecret.UpdatedClientSecretResult;
-import no.helseid.selfservice.clientsecret.UpdatedClientSecretSuccess;
 import no.helseid.selfservice.endpoints.clientsecret.ClientSecretErrorResponse;
 import no.helseid.selfservice.endpoints.clientsecret.ClientSecretResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import wiremock.net.minidev.json.JSONObject;
 
 import java.net.URI;
+import java.net.http.HttpClient;
 import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Set;
@@ -35,6 +32,7 @@ class DefaultClientSecretUpdaterTest {
   private static final String CLIENT_SECRET_PATH = "/v1/client-secret";
   private static final Set<String> CLIENT_SECRET_SCOPE = Collections.singleton("nhn:selvbetjening/client");
   private WireMockServer wms;
+  private HttpClient httpClient;
 
   private static ClientCredentials mockClientCredentials(TokenResponse tokenResponse) {
     DPoPProofCreator dPoPProofCreator = new MockDPoPProofCreator("my.dpop.proof", "keyId");
@@ -45,6 +43,7 @@ class DefaultClientSecretUpdaterTest {
   void setup() {
     wms = new WireMockServer(WireMockConfiguration.options().dynamicPort());
     wms.start();
+    httpClient = HttpClient.newHttpClient();
   }
 
   @Test
@@ -59,7 +58,8 @@ class DefaultClientSecretUpdaterTest {
     DefaultClientSecretUpdater updater = new DefaultClientSecretUpdater(
         URI.create(wms.baseUrl() + CLIENT_SECRET_PATH),
         clientCredentials,
-        CLIENT_SECRET_SCOPE);
+        CLIENT_SECRET_SCOPE,
+        httpClient);
     var expiration = ZonedDateTime.now().plusMonths(1);
     wms.stubFor(WireMock.post(WireMock.urlPathEqualTo(CLIENT_SECRET_PATH))
         .willReturn(ok().withBody(
@@ -88,7 +88,8 @@ class DefaultClientSecretUpdaterTest {
     DefaultClientSecretUpdater updater = new DefaultClientSecretUpdater(
         URI.create(wms.baseUrl() + CLIENT_SECRET_PATH),
         clientCredentials,
-        CLIENT_SECRET_SCOPE
+        CLIENT_SECRET_SCOPE,
+        httpClient
     );
     wms.stubFor(WireMock.post(WireMock.urlPathEqualTo(CLIENT_SECRET_PATH))
         .willReturn(badRequest().withBody(
@@ -123,7 +124,8 @@ class DefaultClientSecretUpdaterTest {
     DefaultClientSecretUpdater updater = new DefaultClientSecretUpdater(
         URI.create(wms.baseUrl() + CLIENT_SECRET_PATH),
         clientCredentials,
-        CLIENT_SECRET_SCOPE
+        CLIENT_SECRET_SCOPE,
+        httpClient
     );
 
     UpdatedClientSecretResult updatedClientSecretResult = updater.updateClientSecret();

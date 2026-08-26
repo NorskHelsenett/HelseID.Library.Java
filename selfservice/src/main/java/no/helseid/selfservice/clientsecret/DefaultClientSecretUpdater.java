@@ -16,6 +16,7 @@ import no.helseid.signing.Util;
 import org.jspecify.annotations.NullMarked;
 
 import java.net.URI;
+import java.net.http.HttpClient;
 import java.util.Set;
 
 
@@ -28,24 +29,50 @@ public class DefaultClientSecretUpdater implements ClientSecretUpdater {
   private final ClientCredentials clientCredentials;
   private final DPoPProofCreator dPoPProofCreator;
   private final Set<String> clientSecretScope;
+  private final HttpClient httpClient;
 
   /**
+   * [DEPRECATED] Use ClientSecretUpdater.Builder
    * Creates the default implementation of the ClientSecretUpdater
+   *
    * @param selfServiceClientSecretEndpoint the full endpoint for updating client secrets
-   * @param clientCredentials a client credentials instance for the client
-   * @param clientSecretScope the scope(s) required for the selfServiceClientSecretEndpoint
+   * @param clientCredentials               a client credentials instance for the client
+   * @param clientSecretScope               the scope(s) required for the selfServiceClientSecretEndpoint
    */
+  @Deprecated
   public DefaultClientSecretUpdater(
       final URI selfServiceClientSecretEndpoint,
       final ClientCredentials clientCredentials,
       final Set<String> clientSecretScope
   ) {
+    this(selfServiceClientSecretEndpoint, clientCredentials, clientSecretScope, HttpClient.newHttpClient());
+  }
+
+  /**
+   * Creates the default implementation of the ClientSecretUpdater
+   *
+   * @param selfServiceClientSecretEndpoint the full endpoint for updating client secrets
+   * @param clientCredentials               a client credentials instance for the client
+   * @param clientSecretScope               the scope(s) required for the selfServiceClientSecretEndpoint
+   * @param httpClient                      the http client used to send requests
+   */
+  DefaultClientSecretUpdater(
+      final URI selfServiceClientSecretEndpoint,
+      final ClientCredentials clientCredentials,
+      final Set<String> clientSecretScope,
+      final HttpClient httpClient
+  ) {
     this.selfServiceClientSecretEndpoint = selfServiceClientSecretEndpoint;
     this.clientCredentials = clientCredentials;
     this.dPoPProofCreator = clientCredentials.getCurrentDPoPProofCreator();
     this.clientSecretScope = clientSecretScope;
+    this.httpClient = httpClient;
   }
 
+  /**
+   * @return a successfully updated client secret
+   * @throws HelseIdException if updating the secret fails at any point
+   */
   public UpdatedClientSecretSuccess generateNewClientSecret() throws HelseIdException {
     UpdatedClientSecretResult result = updateClientSecret();
 
@@ -56,6 +83,10 @@ public class DefaultClientSecretUpdater implements ClientSecretUpdater {
     throw new HelseIdException("Update of client secret failed");
   }
 
+  /**
+   * @return an updated client secret result, both failed and successful
+   * @throws HelseIdException if configuration is wrong or error while getting tokens
+   */
   public UpdatedClientSecretResult updateClientSecret() throws HelseIdException {
     TokenRequestDetails requestDetails = new TokenRequestDetails.Builder()
         .addMultipleScope(clientSecretScope)
@@ -69,7 +100,8 @@ public class DefaultClientSecretUpdater implements ClientSecretUpdater {
           clientSecretEndpoint,
           dPoPProofCreator,
           accessTokenResponse.accessToken(),
-          jwk
+          jwk,
+          httpClient
       );
 
       if (clientSecretResponse instanceof ClientSecretSuccessResponse clientSecretSuccessResponse) {

@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
+import java.net.http.HttpClient;
 import java.time.ZonedDateTime;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -24,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 class ClientSecretEndpointTest {
-  private static String CLIENT_SECRET_PATH = "/v1/client-secret";
+  private static final String CLIENT_SECRET_PATH = "/v1/client-secret";
   private WireMockServer wms;
 
 
@@ -73,7 +74,8 @@ class ClientSecretEndpointTest {
         endpoint,
         dPoPProofCreator,
         accessToken,
-        jwk
+        jwk,
+        HttpClient.newHttpClient()
     );
 
     assertInstanceOf(ClientSecretSuccessResponse.class, clientSecretResponse);

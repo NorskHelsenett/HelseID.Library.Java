@@ -22,6 +22,7 @@ import java.util.Map;
 @NullMarked
 public interface ClientSecretEndpoint {
   /**
+   * [DEPRECATED] Use overload providing httpClient
    * Upload a public json web key to  HelseID Self-Service
    *
    * @param endpoint         the endpoint
@@ -31,14 +32,42 @@ public interface ClientSecretEndpoint {
    * @return the result of an upload
    * @throws HelseIdException if a request was unable to send or response was unparsable
    */
+  @Deprecated
   static ClientSecretResponse sendRequest(
       URI endpoint,
       DPoPProofCreator dPoPProofCreator,
       String accessToken,
       JWK jwk
   ) throws HelseIdException {
+    return sendRequest(
+        endpoint,
+        dPoPProofCreator,
+        accessToken,
+        jwk,
+        HttpClient.newHttpClient()
+    );
+  }
+
+  /**
+   * Upload a public json web key to  HelseID Self-Service
+   *
+   * @param endpoint         the endpoint
+   * @param dPoPProofCreator a dpop proof creator
+   * @param accessToken      an access token bound to the private key in the dpop proof creator
+   * @param jwk              a private jwk
+   * @param httpClient       the http client used to send the request
+   * @return the result of an upload
+   * @throws HelseIdException if a request was unable to send or response was unparsable
+   */
+  static ClientSecretResponse sendRequest(
+      URI endpoint,
+      DPoPProofCreator dPoPProofCreator,
+      String accessToken,
+      JWK jwk,
+      HttpClient httpClient
+  ) throws HelseIdException {
     HttpResponse<String> httpResponse;
-    try (HttpClient httpclient = HttpClient.newHttpClient();) {
+    try {
       HttpRequest httpRequest = HttpRequest.newBuilder(endpoint)
           .POST(HttpRequest.BodyPublishers.ofString(jwk.toPublicJWK().toJSONString()))
           .header("Authorization", "DPoP " + accessToken)
@@ -47,7 +76,7 @@ public interface ClientSecretEndpoint {
           .header("Accept", "application/json")
           .build();
 
-      httpResponse = httpclient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+      httpResponse = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
       if (httpResponse.statusCode() >= 500) {
         throw new HelseIdException("Unexpected error from self service");

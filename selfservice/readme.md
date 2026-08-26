@@ -10,18 +10,17 @@
 ```
 
 ## Setup
-When setting up `DefaultClientSecretUpdater` a `ClientCredentials` instance is required, [read how to setup client credentials here](../client/readme.md).
+When setting up `ClientSecretUpdater` a `ClientCredentials` instance is required, [read how to setup client credentials here](../client/readme.md).
 
 ```java
 import no.helseid.selfservice.clientsecret.*;
 
 ClientCredentials clientCredentials = ...;
 
-ClientSecretUpdater clientSecretUpdater = new DefaultClientSecretUpdater(
-    URI.create("https://api.selvbetjening.test.nhn.no/v1/client-secret"),
-    clientCredentials,
-    Collections.singleton("nhn:selvbetjening/client")
-);
+ClientSecretUpdater clientSecretUpdater = new ClientSecretUpdater.Builder(URI.create("https://api.selvbetjening.test.nhn.no/v1/client-secret"))
+        .withClientCredentials(clientCredentials)
+        .addScope("nhn:selvbetjening/client")
+        .build();
 ```
 
 ## Updating a client secret
